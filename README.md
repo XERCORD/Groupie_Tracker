@@ -25,5 +25,9 @@ L'objectif de ce projet est de créer une interface utilisateur intuitive pour e
 ### Étapes d'installation
 1. Cloner le dépôt :
    ```bash
-   git clone https://github.com/votre-utilisateur/projet-groupie.git
-   cd projet-groupie
+   git clone https://github.com/XERCORD/Groupie_Tracker.git
+2. Lancer le serveur :
+   ```bash
+   go run main.go
+3. Accéder à l'application
+  Ouvrez le navigateur Chrome et entrez l'adresse : http://localhost:8000
