@@ -1,0 +1,69 @@
+.search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+input, select {
+    padding: 10px;
+    border: 2px solid #2a75bb;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background: #ffcb05;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.card img {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    background: #f8f8f8;
+}
+
+.card-info {
+    padding: 15px;
+}
+
+.category {
+    font-weight: bold;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.category.Pokémon { background: #ff6961; }
+.category.Énergie { background: #77dd77; }
+.category.Dresseur { background: #84b6f4; }
+
+.pagination {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}

@@ -1,0 +1,86 @@
+{{define "accueil"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/accueil.css">
+    <title>TCGDEX</title>
+</head>
+<body>
+    <div class="header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+        <h1 class="title">TCGDEX</h1>
+    
+<body>
+    <header>
+        <h1>TCGDEX Explorer</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Accueil</a></li>
+                <li><a href="#cards">Collection</a></li>
+                <li><a href="#favorites">Favoris</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="content">
+        <!-- Les données JSON seront affichées ici -->
+    </main>
+    <footer>
+        <p>&copy; 2025 TCGDEX Explorer</p>
+    </footer>
+    <script>
+        // Charger les données à partir des fichiers JSON
+        async function loadData() {
+            const dataResponse = await fetch('data.json');
+            const data = await dataResponse.json();
+
+            const favoritesResponse = await fetch('favorites.json');
+            const favorites = await favoritesResponse.json();
+
+            // Afficher les cartes
+            displayCards(data.cards, favorites.favorites);
+        }
+
+        // Afficher les cartes sur la page
+        function displayCards(cards, favorites) {
+            const content = document.getElementById('content');
+            content.innerHTML = cards.map(card => `
+                <div class="card">
+                    <h3>${card.name}</h3>
+                    <p>Type: ${card.type}</p>
+                    <button onclick="toggleFavorite('${card.id}')">
+                        ${favorites.includes(card.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Gérer les favoris
+        async function toggleFavorite(cardId) {
+            const favoritesResponse = await fetch('favorites.json');
+            const favoritesData = await favoritesResponse.json();
+            const favorites = favoritesData.favorites;
+
+            if (favorites.includes(cardId)) {
+                favorites.splice(favorites.indexOf(cardId), 1);
+            } else {
+                favorites.push(cardId);
+            }
+
+            // Mettre à jour le fichier JSON des favoris
+            await fetch('favorites.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ favorites })
+            });
+
+            loadData();
+        }
+
+        // Charger les données au démarrage
+        loadData();
+    </script>
+</body>
+</html>
+{{end}}

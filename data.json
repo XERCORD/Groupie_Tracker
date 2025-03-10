@@ -1,0 +1,7 @@
+{
+    "cards": [
+        { "id": "1", "name": "Pikachu", "type": "Électrique" },
+        { "id": "2", "name": "Bulbizarre", "type": "Plante" },
+        { "id": "3", "name": "Salamèche", "type": "Feu" }
+    ]
+}

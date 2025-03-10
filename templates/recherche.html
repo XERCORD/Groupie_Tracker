@@ -1,0 +1,58 @@
+{{ define "recherche" }}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/css/recherche.css" rel="stylesheet">
+    <title>TCGDEX</title>
+</head>
+<body>
+<div class="search-container">
+    <form action="/search" method="get">
+        <input type="text" name="q" placeholder="Rechercher une carte..." value="{{ .Query | urlquery }}">
+        <select name="category">
+            <option value="">Toutes catégories</option>
+            <option value="Pokémon" {{ if eq .Category "Pokémon" }}selected{{ end }}>Pokémon</option>
+            <option value="Énergie" {{ if eq .Category "Énergie" }}selected{{ end }}>Énergie</option>
+            <option value="Dresseur" {{ if eq .Category "Dresseur" }}selected{{ end }}>Dresseur</option>
+        </select>
+        <button type="submit">Rechercher</button>
+    </form>
+
+    <div class="results">
+        {{ range .Cards }}
+        <div class="card">
+            <img src="{{ .Image }}" alt="Image de {{ .Name }}" loading="lazy">
+            <div class="card-info">
+                <h3>{{ .Name }}</h3>
+                <p class="category {{ .Category }}">{{ .Category }}</p>
+                <p class="rarity">{{ .Rarity }}</p>
+                <button class="favorite" data-card-id="{{ .ID }}">
+                    {{ if .IsFavorite }}❤️ Retirer{{ else }}🤍 Ajouter{{ end }}
+                </button>
+                <a href="/card?id={{ .ID }}" class="details">Détails</a>
+            </div>
+        </div>
+        {{ else }}
+        <p class="no-results">Aucun résultat trouvé</p>
+        {{ end }}
+    </div>
+
+    {{ if gt .TotalPages 1 }}
+    <div class="pagination">
+        {{ if gt .Page 1 }}
+        <a href="/search?q={{ .Query | urlquery }}&category={{ .Category | urlquery }}&page={{ .PreviousPage }}">Précédent</a>
+        {{ end }}
+
+        <span>Page {{ .Page }}/{{ .TotalPages }}</span>
+
+        {{ if lt .Page .TotalPages }}
+        <a href="/search?q={{ .Query | urlquery }}&category={{ .Category | urlquery }}&page={{ .NextPage }}">Suivant</a>
+        {{ end }}
+    </div>
+    {{ end }}
+</div>
+</body>
+</html>
+{{ end }}
