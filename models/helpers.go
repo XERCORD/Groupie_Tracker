@@ -1,29 +1,15 @@
-package utils
+package models
 
 import (
 	"fmt"
 	"log"
 	"math/rand"
-	"strings"
 	"time"
 )
 
 // Initialisation du générateur de nombres aléatoires
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-// ToLowerCase convertit une chaîne en minuscules
-func ToLowerCase(s string) string {
-	return strings.ToLower(s)
-}
-
-// Contains vérifie si une chaîne contient une sous-chaîne, en ignorant la casse
-func Contains(s, substr string) bool {
-	return strings.Contains(
-		strings.ToLower(s),
-		strings.ToLower(substr),
-	)
 }
 
 // TruncateString tronque une chaîne à la longueur spécifiée et ajoute "..." si nécessaire

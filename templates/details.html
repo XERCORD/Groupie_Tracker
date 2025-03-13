@@ -1,116 +1,147 @@
-{{ define "title" }}{{ .Card.Name }}{{ end }}
-
-{{ define "styles" }}
-<link rel="stylesheet" href="/static/css/details.css">
-{{ end }}
-
-{{ define "content" }}
-<div class="card-details">
-    <div class="card-image-container">
-        <img src="{{ .Card.Image }}" alt="{{ .Card.Name }}">
-        <div class="card-actions">
-            <button class="favorite-btn {{ if .Card.IsFavorite }}active{{ end }}" 
-                    data-card-id="{{ .Card.ID }}" 
-                    title="{{ if .Card.IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
-                {{ if .Card.IsFavorite }}❤️ Dans vos favoris{{ else }}🤍 Ajouter aux favoris{{ end }}
-            </button>
+{{define "details"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Card.Name }} - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/details.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                <h1>TCGDEX Explorer</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/a-propos">À propos</a></li>
+                </ul>
+            </nav>
         </div>
-    </div>
+    </header>
     
-    <div class="card-data">
-        <h2>{{ .Card.Name }}</h2>
-        
-        <div class="card-attribute">
-            <div class="attribute-name">Catégorie</div>
-            <div class="attribute-value">
-                <span class="card-category {{ .Card.Category }}">{{ .Card.Category }}</span>
+    <main class="container">
+        <div class="card-details">
+            <div class="card-image-container">
+                <img src="{{ .Card.Image }}" alt="{{ .Card.Name }}">
+                <div class="card-actions">
+                    <button class="favorite-btn {{ if .Card.IsFavorite }}active{{ end }}" 
+                            data-card-id="{{ .Card.ID }}" 
+                            title="{{ if .Card.IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                        {{ if .Card.IsFavorite }}❤️ Dans vos favoris{{ else }}🤍 Ajouter aux favoris{{ end }}
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-data">
+                <h2>{{ .Card.Name }}</h2>
+                
+                <div class="card-attribute">
+                    <div class="attribute-name">Catégorie</div>
+                    <div class="attribute-value">
+                        <span class="card-category {{ .Card.Category }}">{{ .Card.Category }}</span>
+                    </div>
+                </div>
+                
+                {{ if .Card.Types }}
+                <div class="card-attribute">
+                    <div class="attribute-name">Type</div>
+                    <div class="attribute-value">
+                        {{ range .Card.Types }}
+                        <span class="card-type {{ . }}">{{ . }}</span>
+                        {{ end }}
+                    </div>
+                </div>
+                {{ end }}
+                
+                {{ if .Card.Rarity }}
+                <div class="card-attribute">
+                    <div class="attribute-name">Rareté</div>
+                    <div class="attribute-value">{{ .Card.Rarity }}</div>
+                </div>
+                {{ end }}
+                
+                {{ if .Card.HP }}
+                <div class="card-attribute">
+                    <div class="attribute-name">Points de vie</div>
+                    <div class="attribute-value">{{ .Card.HP }} HP</div>
+                </div>
+                {{ end }}
+                
+                <div class="card-attribute">
+                    <div class="attribute-name">Série</div>
+                    <div class="attribute-value">{{ .Card.SeriesName }}</div>
+                </div>
+                
+                {{ if .Card.Artist }}
+                <div class="card-attribute">
+                    <div class="attribute-name">Illustrateur</div>
+                    <div class="attribute-value">{{ .Card.Artist }}</div>
+                </div>
+                {{ end }}
+                
+                {{ if .Card.ReleaseDate }}
+                <div class="card-attribute">
+                    <div class="attribute-name">Date de sortie</div>
+                    <div class="attribute-value">{{ .Card.ReleaseDate }}</div>
+                </div>
+                {{ end }}
+                
+                {{ if .Card.Description }}
+                <div class="card-description">
+                    <h3>Description</h3>
+                    <p>{{ .Card.Description }}</p>
+                </div>
+                {{ end }}
+                
+                <div class="card-links">
+                    <a href="/series/{{ .Card.SeriesID }}" class="btn btn-secondary">Voir la série</a>
+                    <a href="javascript:history.back()" class="btn btn-primary">Retour</a>
+                </div>
             </div>
         </div>
-        
-        {{ if .Card.Types }}
-        <div class="card-attribute">
-            <div class="attribute-name">Type</div>
-            <div class="attribute-value">
-                {{ range .Card.Types }}
-                <span class="card-type {{ . }}">{{ . }}</span>
+
+        {{ if .SimilarCards }}
+        <section class="similar-cards">
+            <h3>Cartes similaires</h3>
+            <div class="cards-grid">
+                {{ range .SimilarCards }}
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
+                                data-card-id="{{ .ID }}" 
+                                title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                            {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
+                        </button>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ .Name }}</h3>
+                        <p class="card-category {{ .Category }}">{{ .Category }}</p>
+                        <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
+                    </div>
+                </div>
                 {{ end }}
             </div>
-        </div>
+        </section>
         {{ end }}
-        
-        {{ if .Card.Rarity }}
-        <div class="card-attribute">
-            <div class="attribute-name">Rareté</div>
-            <div class="attribute-value">{{ .Card.Rarity }}</div>
+    </main>
+    
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
         </div>
-        {{ end }}
-        
-        {{ if .Card.HP }}
-        <div class="card-attribute">
-            <div class="attribute-name">Points de vie</div>
-            <div class="attribute-value">{{ .Card.HP }} HP</div>
-        </div>
-        {{ end }}
-        
-        <div class="card-attribute">
-            <div class="attribute-name">Série</div>
-            <div class="attribute-value">{{ .Card.SeriesName }}</div>
-        </div>
-        
-        {{ if .Card.Artist }}
-        <div class="card-attribute">
-            <div class="attribute-name">Illustrateur</div>
-            <div class="attribute-value">{{ .Card.Artist }}</div>
-        </div>
-        {{ end }}
-        
-        {{ if .Card.ReleaseDate }}
-        <div class="card-attribute">
-            <div class="attribute-name">Date de sortie</div>
-            <div class="attribute-value">{{ .Card.ReleaseDate }}</div>
-        </div>
-        {{ end }}
-        
-        {{ if .Card.Description }}
-        <div class="card-description">
-            <h3>Description</h3>
-            <p>{{ .Card.Description }}</p>
-        </div>
-        {{ end }}
-        
-        <div class="card-links">
-            <a href="/series/{{ .Card.SeriesID }}" class="btn btn-secondary">Voir la série</a>
-            <a href="javascript:history.back()" class="btn btn-primary">Retour</a>
-        </div>
-    </div>
-</div>
+    </footer>
 
-{{ if .SimilarCards }}
-<section class="similar-cards">
-    <h3>Cartes similaires</h3>
-    <div class="cards-grid">
-        {{ range .SimilarCards }}
-        <div class="card">
-            <div class="card-image">
-                <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
-                <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
-                        data-card-id="{{ .ID }}" 
-                        title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
-                    {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
-                </button>
-            </div>
-            <div class="card-info">
-                <h3>{{ .Name }}</h3>
-                <p class="card-category {{ .Category }}">{{ .Category }}</p>
-                <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
-            </div>
-        </div>
-        {{ end }}
-    </div>
-</section>
-{{ end }}
-{{ end }}
-
-{{ define "scripts" }}
-<script src="/static/js/favorites.js"></script>
-{{ end }}
+    <script src="/static/js/favorites.js"></script>
+</body>
+</html>
+{{end}}

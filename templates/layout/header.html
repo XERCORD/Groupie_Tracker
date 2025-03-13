@@ -1,4 +1,4 @@
-{{ define "header" }}
+{{define "header"}}
 <header class="main-header">
     <div class="container">
         <div class="brand">
@@ -7,13 +7,13 @@
         </div>
         <nav>
             <ul class="nav-menu">
-                <li><a href="/accueil" class="{{ if eq .CurrentPage "accueil" }}active{{ end }}">Accueil</a></li>
-                <li><a href="/collection" class="{{ if eq .CurrentPage "collection" }}active{{ end }}">Collection</a></li>
-                <li><a href="/recherche" class="{{ if eq .CurrentPage "recherche" }}active{{ end }}">Recherche</a></li>
-                <li><a href="/favoris" class="{{ if eq .CurrentPage "favoris" }}active{{ end }}">Favoris</a></li>
-                <li><a href="/a-propos" class="{{ if eq .CurrentPage "a-propos" }}active{{ end }}">À propos</a></li>
+                <li><a href="/accueil" {{if eq .CurrentPage "accueil"}}class="active"{{end}}>Accueil</a></li>
+                <li><a href="/collection" {{if eq .CurrentPage "collection"}}class="active"{{end}}>Collection</a></li>
+                <li><a href="/recherche" {{if eq .CurrentPage "recherche"}}class="active"{{end}}>Recherche</a></li>
+                <li><a href="/favoris" {{if eq .CurrentPage "favoris"}}class="active"{{end}}>Favoris</a></li>
+                <li><a href="/a-propos" {{if eq .CurrentPage "a-propos"}}class="active"{{end}}>À propos</a></li>
             </ul>
         </nav>
     </div>
 </header>
-{{ end }}
+{{end}}

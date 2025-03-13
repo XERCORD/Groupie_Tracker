@@ -1,133 +1,164 @@
-{{ define "title" }}{{ .Series.Name }}{{ end }}
+{{define "series"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Series.Name }} - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/collection.css">
+    <link rel="stylesheet" href="/static/css/search.css">
+    <style>
+    .series-header {
+        background-color: #3c5aa6;
+        color: #fff;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 0 0 8px 8px;
+        text-align: center;
+    }
 
-{{ define "styles" }}
-<link rel="stylesheet" href="/static/css/collection.css">
-<link rel="stylesheet" href="/static/css/search.css">
-<style>
-.series-header {
-    background-color: #3c5aa6;
-    color: #fff;
-    padding: 30px 0;
-    margin-bottom: 30px;
-    border-radius: 0 0 8px 8px;
-    text-align: center;
-}
+    .series-header h1 {
+        margin-bottom: 10px;
+    }
 
-.series-header h1 {
-    margin-bottom: 10px;
-}
+    .series-header-info {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 15px;
+    }
 
-.series-header-info {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 15px;
-}
+    .series-header-stat {
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
 
-.series-header-stat {
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-}
+    .series-logo {
+        max-width: 200px;
+        max-height: 100px;
+        margin: 0 auto 15px;
+    }
 
-.series-logo {
-    max-width: 200px;
-    max-height: 100px;
-    margin: 0 auto 15px;
-}
-
-.series-logo img {
-    max-width: 100%;
-    max-height: 100%;
-}
-</style>
-{{ end }}
-
-{{ define "content" }}
-<div class="series-header">
-    {{ if .Series.Logo }}
-    <div class="series-logo">
-        <img src="{{ .Series.Logo }}" alt="{{ .Series.Name }}">
-    </div>
-    {{ end }}
-    
-    <h1>{{ .Series.Name }}</h1>
-    <p>Collection de cartes de cette série</p>
-    
-    <div class="series-header-info">
-        <span class="series-header-stat">{{ .Series.CardCount.Total }} cartes</span>
-        <span class="series-header-stat">Date: {{ .Series.ReleaseDate }}</span>
-    </div>
-</div>
-
-<section class="results-section">
-    <div class="results-header">
-        <h2>Cartes de la série ({{ .TotalResults }} cartes)</h2>
-        <div class="page-size">
-            <label for="page-size">Afficher:</label>
-            <select id="page-size" onchange="changePageSize(this.value)">
-                <option value="10" {{ if eq .PageSize 10 }}selected{{ end }}>10</option>
-                <option value="20" {{ if eq .PageSize 20 }}selected{{ end }}>20</option>
-                <option value="30" {{ if eq .PageSize 30 }}selected{{ end }}>30</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="cards-grid">
-        {{ range .Cards }}
-        <div class="card">
-            <div class="card-image">
-                <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
-                <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
-                        data-card-id="{{ .ID }}" 
-                        title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
-                    {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
-                </button>
+    .series-logo img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                <h1>TCGDEX Explorer</h1>
             </div>
-            <div class="card-info">
-                <h3>{{ .Name }}</h3>
-                <div class="card-meta">
-                    <span class="card-category {{ .Category }}">{{ .Category }}</span>
-                    {{ if .Rarity }}<span class="card-rarity">{{ .Rarity }}</span>{{ end }}
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection" class="active">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/a-propos">À propos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="series-header">
+            {{ if .Series.Logo }}
+            <div class="series-logo">
+                <img src="{{ .Series.Logo }}" alt="{{ .Series.Name }}">
+            </div>
+            {{ end }}
+            
+            <h1>{{ .Series.Name }}</h1>
+            <p>Collection de cartes de cette série</p>
+            
+            <div class="series-header-info">
+                <span class="series-header-stat">{{ .Series.CardCount.Total }} cartes</span>
+                <span class="series-header-stat">Date: {{ .Series.ReleaseDate }}</span>
+            </div>
+        </div>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Cartes de la série ({{ .TotalResults }} cartes)</h2>
+                <div class="page-size">
+                    <label for="page-size">Afficher:</label>
+                    <select id="page-size" onchange="changePageSize(this.value)">
+                        <option value="10" {{ if eq .PageSize 10 }}selected{{ end }}>10</option>
+                        <option value="20" {{ if eq .PageSize 20 }}selected{{ end }}>20</option>
+                        <option value="30" {{ if eq .PageSize 30 }}selected{{ end }}>30</option>
+                    </select>
                 </div>
-                {{ if .Types }}
-                <div class="card-types">
-                    {{ range .Types }}
-                    <span class="card-type {{ . }}">{{ . }}</span>
-                    {{ end }}
+            </div>
+            
+            <div class="cards-grid">
+                {{ range .Cards }}
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
+                                data-card-id="{{ .ID }}" 
+                                title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                            {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
+                        </button>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ .Name }}</h3>
+                        <div class="card-meta">
+                            <span class="card-category {{ .Category }}">{{ .Category }}</span>
+                            {{ if .Rarity }}<span class="card-rarity">{{ .Rarity }}</span>{{ end }}
+                        </div>
+                        {{ if .Types }}
+                        <div class="card-types">
+                            {{ range .Types }}
+                            <span class="card-type {{ . }}">{{ . }}</span>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                        <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
+                    </div>
+                </div>
+                {{ else }}
+                <div class="no-results">
+                    <p>Aucune carte trouvée dans cette série.</p>
                 </div>
                 {{ end }}
-                <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
             </div>
+            
+            {{ if gt .TotalPages 1 }}
+            <div class="pagination">
+                {{ if gt .Page 1 }}
+                <a href="/series/{{ .Series.ID }}?page={{ .PreviousPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">← Précédent</a>
+                {{ end }}
+                
+                <span class="page-info">Page {{ .Page }}/{{ .TotalPages }}</span>
+                
+                {{ if lt .Page .TotalPages }}
+                <a href="/series/{{ .Series.ID }}?page={{ .NextPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">Suivant →</a>
+                {{ end }}
+            </div>
+            {{ end }}
+        </section>
+
+        <div class="back-link" style="margin-top: 20px; text-align: center;">
+            <a href="/collection" class="btn btn-secondary">Retour à la collection</a>
         </div>
-        {{ else }}
-        <div class="no-results">
-            <p>Aucune carte trouvée dans cette série.</p>
-        </div>
-        {{ end }}
-    </div>
+    </main>
     
-    {{ if gt .TotalPages 1 }}
-    <div class="pagination">
-        {{ if gt .Page 1 }}
-        <a href="/series/{{ .Series.ID }}?page={{ .PreviousPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">← Précédent</a>
-        {{ end }}
-        
-        <span class="page-info">Page {{ .Page }}/{{ .TotalPages }}</span>
-        
-        {{ if lt .Page .TotalPages }}
-        <a href="/series/{{ .Series.ID }}?page={{ .NextPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">Suivant →</a>
-        {{ end }}
-    </div>
-    {{ end }}
-</section>
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
+        </div>
+    </footer>
 
-<div class="back-link" style="margin-top: 20px; text-align: center;">
-    <a href="/collection" class="btn btn-secondary">Retour à la collection</a>
-</div>
-{{ end }}
-
-{{ define "scripts" }}
-<script src="/static/js/favorites.js"></script>
-{{ end }}
+    <script src="/static/js/favorites.js"></script>
+</body>
+</html>
+{{end}}

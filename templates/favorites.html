@@ -1,64 +1,95 @@
-{{ define "title" }}Mes Favoris{{ end }}
-
-{{ define "styles" }}
-<link rel="stylesheet" href="/static/css/favorites.css">
-{{ end }}
-
-{{ define "content" }}
-<div class="favorites-header">
-    <h1>Mes Cartes Favorites</h1>
-    <p>Retrouvez ici toutes les cartes que vous avez ajoutées à vos favoris</p>
-</div>
-
-<div class="favorites-container">
-    <div class="section-header">
-        <h2>Liste des favoris</h2>
-        {{ if .Cards }}
-        <div class="bulk-actions">
-            <button id="clear-favorites" class="btn btn-secondary">Supprimer tous les favoris</button>
-        </div>
-        {{ end }}
-    </div>
-    
-    {{ if .Cards }}
-    <div class="cards-grid">
-        {{ range .Cards }}
-        <div class="card">
-            <div class="card-image">
-                <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
-                <button class="favorite-btn active" 
-                        data-card-id="{{ .ID }}" 
-                        title="Retirer des favoris">
-                    ❤️
-                </button>
+{{define "favorites"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Favoris - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/favorites.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                <h1>TCGDEX Explorer</h1>
             </div>
-            <div class="card-info">
-                <h3>{{ .Name }}</h3>
-                <div class="card-meta">
-                    <span class="card-category {{ .Category }}">{{ .Category }}</span>
-                    {{ if .Rarity }}<span class="card-rarity">{{ .Rarity }}</span>{{ end }}
-                </div>
-                {{ if .Types }}
-                <div class="card-types">
-                    {{ range .Types }}
-                    <span class="card-type {{ . }}">{{ . }}</span>
-                    {{ end }}
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris" class="active">Favoris</a></li>
+                    <li><a href="/a-propos">À propos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="favorites-header">
+            <h1>Mes Cartes Favorites</h1>
+            <p>Retrouvez ici toutes les cartes que vous avez ajoutées à vos favoris</p>
+        </div>
+
+        <div class="favorites-container">
+            <div class="section-header">
+                <h2>Liste des favoris</h2>
+                {{ if .Cards }}
+                <div class="bulk-actions">
+                    <button id="clear-favorites" class="btn btn-secondary">Supprimer tous les favoris</button>
                 </div>
                 {{ end }}
-                <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
             </div>
+            
+            {{ if .Cards }}
+            <div class="cards-grid">
+                {{ range .Cards }}
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        <button class="favorite-btn active" 
+                                data-card-id="{{ .ID }}" 
+                                title="Retirer des favoris">
+                            ❤️
+                        </button>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ .Name }}</h3>
+                        <div class="card-meta">
+                            <span class="card-category {{ .Category }}">{{ .Category }}</span>
+                            {{ if .Rarity }}<span class="card-rarity">{{ .Rarity }}</span>{{ end }}
+                        </div>
+                        {{ if .Types }}
+                        <div class="card-types">
+                            {{ range .Types }}
+                            <span class="card-type {{ . }}">{{ . }}</span>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                        <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+            {{ else }}
+            <div class="no-favorites">
+                <p>Vous n'avez pas encore ajouté de cartes à vos favoris.</p>
+                <a href="/recherche" class="btn btn-primary">Parcourir les cartes</a>
+            </div>
+            {{ end }}
         </div>
-        {{ end }}
-    </div>
-    {{ else }}
-    <div class="no-favorites">
-        <p>Vous n'avez pas encore ajouté de cartes à vos favoris.</p>
-        <a href="/recherche" class="btn btn-primary">Parcourir les cartes</a>
-    </div>
-    {{ end }}
-</div>
-{{ end }}
+    </main>
+    
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
+        </div>
+    </footer>
 
-{{ define "scripts" }}
-<script src="/static/js/favorites.js"></script>
-{{ end }}
+    <script src="/static/js/favorites.js"></script>
+</body>
+</html>
+{{end}}

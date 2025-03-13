@@ -1,78 +1,107 @@
-{{ define "title" }}Erreur {{ .StatusCode }}{{ end }}
+{{define "error"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur {{ .StatusCode }} - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <style>
+    .error-container {
+        text-align: center;
+        padding: 50px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-{{ define "styles" }}
-<style>
-.error-container {
-    text-align: center;
-    padding: 50px 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.error-code {
-    font-size: 8rem;
-    color: #ffcb05;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    margin-bottom: 20px;
-}
-
-.error-title {
-    font-size: 2rem;
-    color: #3c5aa6;
-    margin-bottom: 20px;
-}
-
-.error-message {
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 30px;
-}
-
-.pikachu-sad {
-    max-width: 200px;
-    margin: 0 auto 30px;
-}
-
-.error-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-}
-
-@media (max-width: 768px) {
     .error-code {
-        font-size: 6rem;
+        font-size: 8rem;
+        color: #ffcb05;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
     }
-    
+
     .error-title {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        color: #3c5aa6;
+        margin-bottom: 20px;
     }
-    
+
+    .error-message {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .pikachu-sad {
+        max-width: 200px;
+        margin: 0 auto 30px;
+    }
+
     .error-actions {
-        flex-direction: column;
-        align-items: center;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
     }
-}
-</style>
-{{ end }}
 
-{{ define "content" }}
-<div class="error-container">
-    <div class="error-code">{{ .StatusCode }}</div>
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                <h1>TCGDEX Explorer</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/a-propos">À propos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
     
-    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu triste" class="pikachu-sad">
+    <main class="container">
+        <div class="error-container">
+            <div class="error-code">{{ .StatusCode }}</div>
+            
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu triste" class="pikachu-sad">
+            
+            <h1 class="error-title">{{ .ErrorTitle }}</h1>
+            
+            <p class="error-message">{{ .ErrorMessage }}</p>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">Page précédente</a>
+            </div>
+        </div>
+    </main>
     
-    <h1 class="error-title">{{ .ErrorTitle }}</h1>
-    
-    <p class="error-message">{{ .ErrorMessage }}</p>
-    
-    <div class="error-actions">
-        <a href="/" class="btn btn-primary">Retour à l'accueil</a>
-        <a href="javascript:history.back()" class="btn btn-secondary">Page précédente</a>
-    </div>
-</div>
-{{ end }}
-
-{{ define "scripts" }}
-<!-- Aucun script nécessaire pour la page d'erreur -->
-{{ end }}
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

@@ -1,142 +1,171 @@
-{{ define "title" }}À propos{{ end }}
-
-{{ define "styles" }}
-<link rel="stylesheet" href="/static/css/about.css">
-{{ end }}
-
-{{ define "content" }}
-<div class="about-header">
-    <h1>À propos du projet</h1>
-    <p>TCGDEX Explorer est une application web développée dans le cadre du projet Groupie Tracker</p>
-</div>
-
-<section class="about-content">
-    <h2>Présentation du projet</h2>
-    <p>
-        TCGDEX Explorer est une application web qui permet d'explorer les cartes du jeu de cartes à collectionner Pokémon en utilisant l'API publique TCGDEX. 
-        L'objectif est de fournir une interface intuitive permettant de rechercher des cartes, consulter des collections et gérer une liste de favoris.
-    </p>
-    <p>
-        Ce projet a été développé dans le cadre du cours "Groupie Tracker" à Ynov, avec pour consigne de créer une application web en Go qui exploite une API REST.
-    </p>
-    
-    <div class="technologies">
-        <span class="tech-badge">Go</span>
-        <span class="tech-badge">HTML</span>
-        <span class="tech-badge">CSS</span>
-        <span class="tech-badge">JavaScript</span>
-        <span class="tech-badge">API REST</span>
-    </div>
-</section>
-
-<section class="faq-container">
-    <h2>FAQ - Gestion de projet</h2>
-    
-    <div class="faq-item">
-        <div class="faq-question">Comment avez-vous décomposé le projet ? Quelles ont été les phases clé ?</div>
-        <div class="faq-answer">
-            <p>Le projet a été divisé en plusieurs phases distinctes :</p>
-            <ol>
-                <li><strong>Analyse des besoins</strong> : Étude du sujet et identification des fonctionnalités essentielles (recherche, filtrage, pagination, favoris).</li>
-                <li><strong>Exploration de l'API</strong> : Recherche et test d'une API adaptée au projet. L'API TCGDEX a été choisie pour sa richesse en données et sa documentation claire.</li>
-                <li><strong>Conception de l'architecture</strong> : Organisation du code en packages (controllers, models, templates) et définition des structures de données.</li>
-                <li><strong>Prototypage</strong> : Création des wireframes pour visualiser l'interface utilisateur.</li>
-                <li><strong>Développement backend</strong> : Implémentation des routes, de la logique métier et de l'interaction avec l'API.</li>
-                <li><strong>Développement frontend</strong> : Création des templates HTML et des styles CSS pour l'interface utilisateur.</li>
-                <li><strong>Tests et débogage</strong> : Vérification du bon fonctionnement de l'application et correction des bugs.</li>
-                <li><strong>Documentation</strong> : Rédaction du README et de la documentation technique.</li>
-            </ol>
-        </div>
-    </div>
-    
-    <div class="faq-item">
-        <div class="faq-question">Comment avez-vous réparti les tâches entre les membres de l'équipe ?</div>
-        <div class="faq-answer">
-            <p>Le projet étant individuel, j'ai dû assumer tous les rôles :</p>
-            <ul>
-                <li><strong>Architecte</strong> : Conception de la structure du projet et des modèles de données</li>
-                <li><strong>Développeur backend</strong> : Implémentation des routes, de la logique métier et de l'interaction avec l'API</li>
-                <li><strong>Développeur frontend</strong> : Création des templates HTML, du CSS et du JavaScript</li>
-                <li><strong>Testeur</strong> : Tests manuels des fonctionnalités et correction des bugs</li>
-                <li><strong>Documentaliste</strong> : Rédaction de la documentation technique</li>
-            </ul>
-            <p>Pour organiser mon travail, j'ai utilisé une approche agile avec des sprints courts de 2-3 jours, chacun axé sur une fonctionnalité spécifique :</p>
-            <ul>
-                <li>Sprint 1 : Mise en place de l'architecture et connexion à l'API</li>
-                <li>Sprint 2 : Implémentation de la recherche et des filtres</li>
-                <li>Sprint 3 : Développement de la pagination</li>
-                <li>Sprint 4 : Gestion des favoris</li>
-                <li>Sprint 5 : Finalisation de l'interface utilisateur et documentation</li>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="faq-item">
-        <div class="faq-question">Comment avez-vous géré votre temps ? Avez-vous défini des priorités ?</div>
-        <div class="faq-answer">
-            <p>La gestion du temps a été cruciale pour ce projet, surtout en travaillant seul. J'ai adopté les stratégies suivantes :</p>
-            <ul>
-                <li><strong>Priorisation des fonctionnalités</strong> : Les fonctionnalités ont été classées par ordre d'importance :</li>
-                <ul>
-                    <li>Priorité 1 : Connectivité à l'API et affichage de base des cartes</li>
-                    <li>Priorité 2 : Système de recherche et filtres</li>
-                    <li>Priorité 3 : Pagination et navigation</li>
-                    <li>Priorité 4 : Gestion des favoris</li>
-                    <li>Priorité 5 : Améliorations UI/UX</li>
+{{define "about"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/about.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                <h1>TCGDEX Explorer</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/a-propos" class="active">À propos</a></li>
                 </ul>
-                <li><strong>Planning quotidien</strong> : Utilisation de la technique Pomodoro (25 minutes de travail, 5 minutes de pause) pour maintenir la concentration</li>
-                <li><strong>Estimation des tâches</strong> : Chaque fonctionnalité a été décomposée en tâches plus petites avec une estimation du temps nécessaire</li>
-                <li><strong>Suivi de progression</strong> : Utilisation d'un tableau Trello pour visualiser l'avancement du projet</li>
-                <li><strong>Marge de sécurité</strong> : Allocation de 20% du temps total pour la résolution de problèmes imprévus</li>
-            </ul>
+            </nav>
         </div>
-    </div>
+    </header>
     
-    <div class="faq-item">
-        <div class="faq-question">Quelle stratégie avez-vous adoptée pour vous documenter ?</div>
-        <div class="faq-answer">
-            <p>Pour mener à bien ce projet, j'ai consulté diverses sources d'information :</p>
-            <ul>
-                <li><strong>Documentation officielle</strong> :</li>
-                <ul>
-                    <li>Documentation de Go pour le développement backend</li>
-                    <li>Documentation de l'API TCGDEX pour comprendre les endpoints et les données disponibles</li>
-                    <li>Documentation de HTML/CSS/JavaScript pour le frontend</li>
-                </ul>
-                <li><strong>Ressources en ligne</strong> :</li>
-                <ul>
-                    <li>Tutoriels sur le développement web avec Go</li>
-                    <li>Articles sur les bonnes pratiques de conception d'API</li>
-                    <li>Forums et communautés comme Stack Overflow pour résoudre des problèmes spécifiques</li>
-                </ul>
-                <li><strong>Veille technologique</strong> :</li>
-                <ul>
-                    <li>Benchmarking d'applications similaires pour inspiration</li>
-                    <li>Analyse de sites de cartes à collectionner pour comprendre les conventions d'interface</li>
-                </ul>
-                <li><strong>Organisation des connaissances</strong> :</li>
-                <ul>
-                    <li>Création d'une base de connaissances personnelle avec les informations importantes</li>
-                    <li>Documentation des problèmes rencontrés et des solutions trouvées</li>
-                </ul>
-            </ul>
+    <main class="container">
+        <div class="about-header">
+            <h1>À propos du projet</h1>
+            <p>TCGDEX Explorer est une application web développée dans le cadre du projet Groupie Tracker</p>
         </div>
-    </div>
-</section>
 
-<div class="author-info">
-    <div class="author-avatar">JX</div>
-    <div class="author-bio">
-        <h3>Ji Xerly</h3>
-        <p>Développeur du projet TCGDEX Explorer</p>
-        <div class="author-links">
-            <a href="mailto:xerly.ji@ynov.com">xerly.ji@ynov.com</a>
-            <a href="https://github.com/XERCORD" target="_blank">GitHub</a>
+        <section class="about-content">
+            <h2>Présentation du projet</h2>
+            <p>
+                TCGDEX Explorer est une application web qui permet d'explorer les cartes du jeu de cartes à collectionner Pokémon en utilisant l'API publique TCGDEX. 
+                L'objectif est de fournir une interface intuitive permettant de rechercher des cartes, consulter des collections et gérer une liste de favoris.
+            </p>
+            <p>
+                Ce projet a été développé dans le cadre du cours "Groupie Tracker" à Ynov, avec pour consigne de créer une application web en Go qui exploite une API REST.
+            </p>
+            
+            <div class="technologies">
+                <span class="tech-badge">Go</span>
+                <span class="tech-badge">HTML</span>
+                <span class="tech-badge">CSS</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">API REST</span>
+            </div>
+        </section>
+
+        <section class="faq-container">
+            <h2>FAQ - Gestion de projet</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Comment avez-vous décomposé le projet ? Quelles ont été les phases clé ?</div>
+                <div class="faq-answer">
+                    <p>Le projet a été divisé en plusieurs phases distinctes :</p>
+                    <ol>
+                        <li><strong>Analyse des besoins</strong> : Étude du sujet et identification des fonctionnalités essentielles (recherche, filtrage, pagination, favoris).</li>
+                        <li><strong>Exploration de l'API</strong> : Recherche et test d'une API adaptée au projet. L'API TCGDEX a été choisie pour sa richesse en données et sa documentation claire.</li>
+                        <li><strong>Conception de l'architecture</strong> : Organisation du code en packages (controllers, models, templates) et définition des structures de données.</li>
+                        <li><strong>Prototypage</strong> : Création des wireframes pour visualiser l'interface utilisateur.</li>
+                        <li><strong>Développement backend</strong> : Implémentation des routes, de la logique métier et de l'interaction avec l'API.</li>
+                        <li><strong>Développement frontend</strong> : Création des templates HTML et des styles CSS pour l'interface utilisateur.</li>
+                        <li><strong>Tests et débogage</strong> : Vérification du bon fonctionnement de l'application et correction des bugs.</li>
+                        <li><strong>Documentation</strong> : Rédaction du README et de la documentation technique.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Comment avez-vous réparti les tâches entre les membres de l'équipe ?</div>
+                <div class="faq-answer">
+                    <p>Le projet étant individuel, j'ai dû assumer tous les rôles :</p>
+                    <ul>
+                        <li><strong>Architecte</strong> : Conception de la structure du projet et des modèles de données</li>
+                        <li><strong>Développeur backend</strong> : Implémentation des routes, de la logique métier et de l'interaction avec l'API</li>
+                        <li><strong>Développeur frontend</strong> : Création des templates HTML, du CSS et du JavaScript</li>
+                        <li><strong>Testeur</strong> : Tests manuels des fonctionnalités et correction des bugs</li>
+                        <li><strong>Documentaliste</strong> : Rédaction de la documentation technique</li>
+                    </ul>
+                    <p>Pour organiser mon travail, j'ai utilisé une approche agile avec des sprints courts de 2-3 jours, chacun axé sur une fonctionnalité spécifique :</p>
+                    <ul>
+                        <li>Sprint 1 : Mise en place de l'architecture et connexion à l'API</li>
+                        <li>Sprint 2 : Implémentation de la recherche et des filtres</li>
+                        <li>Sprint 3 : Développement de la pagination</li>
+                        <li>Sprint 4 : Gestion des favoris</li>
+                        <li>Sprint 5 : Finalisation de l'interface utilisateur et documentation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Comment avez-vous géré votre temps ? Avez-vous défini des priorités ?</div>
+                <div class="faq-answer">
+                    <p>La gestion du temps a été cruciale pour ce projet, surtout en travaillant seul. J'ai adopté les stratégies suivantes :</p>
+                    <ul>
+                        <li><strong>Priorisation des fonctionnalités</strong> : Les fonctionnalités ont été classées par ordre d'importance :</li>
+                        <ul>
+                            <li>Priorité 1 : Connectivité à l'API et affichage de base des cartes</li>
+                            <li>Priorité 2 : Système de recherche et filtres</li>
+                            <li>Priorité 3 : Pagination et navigation</li>
+                            <li>Priorité 4 : Gestion des favoris</li>
+                            <li>Priorité 5 : Améliorations UI/UX</li>
+                        </ul>
+                        <li><strong>Planning quotidien</strong> : Utilisation de la technique Pomodoro (25 minutes de travail, 5 minutes de pause) pour maintenir la concentration</li>
+                        <li><strong>Estimation des tâches</strong> : Chaque fonctionnalité a été décomposée en tâches plus petites avec une estimation du temps nécessaire</li>
+                        <li><strong>Suivi de progression</strong> : Utilisation d'un tableau Trello pour visualiser l'avancement du projet</li>
+                        <li><strong>Marge de sécurité</strong> : Allocation de 20% du temps total pour la résolution de problèmes imprévus</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Quelle stratégie avez-vous adoptée pour vous documenter ?</div>
+                <div class="faq-answer">
+                    <p>Pour mener à bien ce projet, j'ai consulté diverses sources d'information :</p>
+                    <ul>
+                        <li><strong>Documentation officielle</strong> :</li>
+                        <ul>
+                            <li>Documentation de Go pour le développement backend</li>
+                            <li>Documentation de l'API TCGDEX pour comprendre les endpoints et les données disponibles</li>
+                            <li>Documentation de HTML/CSS/JavaScript pour le frontend</li>
+                        </ul>
+                        <li><strong>Ressources en ligne</strong> :</li>
+                        <ul>
+                            <li>Tutoriels sur le développement web avec Go</li>
+                            <li>Articles sur les bonnes pratiques de conception d'API</li>
+                            <li>Forums et communautés comme Stack Overflow pour résoudre des problèmes spécifiques</li>
+                        </ul>
+                        <li><strong>Veille technologique</strong> :</li>
+                        <ul>
+                            <li>Benchmarking d'applications similaires pour inspiration</li>
+                            <li>Analyse de sites de cartes à collectionner pour comprendre les conventions d'interface</li>
+                        </ul>
+                        <li><strong>Organisation des connaissances</strong> :</li>
+                        <ul>
+                            <li>Création d'une base de connaissances personnelle avec les informations importantes</li>
+                            <li>Documentation des problèmes rencontrés et des solutions trouvées</li>
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="author-info">
+            <div class="author-avatar">JX</div>
+            <div class="author-bio">
+                <h3>Ji Xerly</h3>
+                <p>Développeur du projet TCGDEX Explorer</p>
+                <div class="author-links">
+                    <a href="mailto:xerly.ji@ynov.com">xerly.ji@ynov.com</a>
+                    <a href="https://github.com/XERCORD" target="_blank">GitHub</a>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{{ end }}
-
-{{ define "scripts" }}
-<!-- Aucun script spécifique pour la page à propos -->
-{{ end }}
+    </main>
+    
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}
