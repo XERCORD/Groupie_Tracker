@@ -45,14 +45,14 @@ func SearchController(w http.ResponseWriter, r *http.Request) {
 	// Récupérer les cartes filtrées
 	cards, totalResults, err := models.SearchCards(searchQuery)
 	if err != nil {
-		renderErrorPage(w, http.StatusInternalServerError, "Erreur de Recherche", "Impossible de récupérer les résultats de recherche")
+		RenderErrorPage(w, http.StatusInternalServerError, "Erreur de Recherche", "Impossible de récupérer les résultats de recherche")
 		return
 	}
 
 	// Récupérer les options de filtres
 	categories, types, rarities, err := models.GetFilterOptions()
 	if err != nil {
-		renderErrorPage(w, http.StatusInternalServerError, "Erreur de Filtres", "Impossible de récupérer les options de filtres")
+		RenderErrorPage(w, http.StatusInternalServerError, "Erreur de Filtres", "Impossible de récupérer les options de filtres")
 		return
 	}
 
