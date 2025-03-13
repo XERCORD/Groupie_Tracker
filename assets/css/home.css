@@ -1,0 +1,116 @@
+/* Page d'accueil */
+.hero {
+    background: linear-gradient(135deg, #2a75bb 0%, #3c5aa6 100%);
+    padding: 60px 0;
+    margin-bottom: 40px;
+    text-align: center;
+    color: #fff;
+    border-radius: 0 0 20px 20px;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  /* Cartes de fonctionnalités */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+  
+  .feature-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .feature-card h2 {
+    color: #3c5aa6;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+  
+  .feature-card p {
+    color: #666;
+  }
+  
+  /* Cartes récentes */
+  .recent-cards {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .recent-cards h2 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* Animation pour les cartes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .card {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .card:nth-child(4) { animation-delay: 0.4s; }
+  .card:nth-child(5) { animation-delay: 0.5s; }
+  .card:nth-child(6) { animation-delay: 0.6s; }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 2rem;
+    }
+    
+    .hero p {
+      font-size: 1rem;
+    }
+    
+    .hero-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }

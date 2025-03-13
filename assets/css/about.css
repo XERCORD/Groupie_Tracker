@@ -1,0 +1,168 @@
+/* Page À propos */
+.about-header {
+    background-color: #3c5aa6;
+    color: #fff;
+    padding: 30px 0;
+    text-align: center;
+    margin-bottom: 30px;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .about-header h1 {
+    margin-bottom: 10px;
+  }
+  
+  .about-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Section de contenu */
+  .about-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .about-content h2 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ffcb05;
+  }
+  
+  .about-content p {
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+  
+  /* FAQ */
+  .faq-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+  
+  .faq-container h2 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ffcb05;
+  }
+  
+  .faq-item {
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+  
+  .faq-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .faq-question {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #ffcb05;
+    background-color: #3c5aa6;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+  }
+  
+  .faq-answer {
+    padding: 0 15px;
+    line-height: 1.7;
+  }
+  
+  .faq-answer p {
+    margin-bottom: 15px;
+  }
+  
+  .faq-answer ul, .faq-answer ol {
+    margin-bottom: 15px;
+    padding-left: 20px;
+  }
+  
+  .faq-answer li {
+    margin-bottom: 5px;
+  }
+  
+  /* Technologies */
+  .technologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .tech-badge {
+    background-color: #f1f1f1;
+    padding: 8px 15px;
+    border-radius: 4px;
+    display: inline-block;
+    font-weight: 600;
+  }
+  
+  /* Auteur */
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+  }
+  
+  .author-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #3c5aa6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  
+  .author-bio h3 {
+    color: #3c5aa6;
+    margin-bottom: 5px;
+  }
+  
+  .author-bio p {
+    margin-bottom: 10px;
+  }
+  
+  .author-links a {
+    margin-right: 15px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .about-header h1 {
+      font-size: 1.8rem;
+    }
+    
+    .about-header p {
+      font-size: 1rem;
+    }
+    
+    .faq-question {
+      font-size: 1.1rem;
+    }
+    
+    .author-info {
+      flex-direction: column;
+      text-align: center;
+    }
+  }

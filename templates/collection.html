@@ -1,0 +1,79 @@
+{{ define "title" }}Collection{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/collection.css">
+{{ end }}
+
+{{ define "content" }}
+<div class="collection-header">
+    <h1>Collection de Séries</h1>
+    <p>Explorez toutes les séries de cartes Pokémon disponibles</p>
+</div>
+
+<section class="collection-filters">
+    <form action="/collection" method="GET" class="filter-form">
+        <div class="form-group">
+            <label for="search">Rechercher une série</label>
+            <input type="text" id="search" name="search" placeholder="Nom de la série..." value="{{ .Search }}">
+        </div>
+        <div class="form-group">
+            <label for="sort">Trier par</label>
+            <select id="sort" name="sort">
+                <option value="name" {{ if eq .Sort "name" }}selected{{ end }}>Nom</option>
+                <option value="date-desc" {{ if eq .Sort "date-desc" }}selected{{ end }}>Date (récent → ancien)</option>
+                <option value="date-asc" {{ if eq .Sort "date-asc" }}selected{{ end }}>Date (ancien → récent)</option>
+                <option value="cards-desc" {{ if eq .Sort "cards-desc" }}selected{{ end }}>Nombre de cartes (↓)</option>
+                <option value="cards-asc" {{ if eq .Sort "cards-asc" }}selected{{ end }}>Nombre de cartes (↑)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrer</button>
+    </form>
+</section>
+
+<div class="series-grid">
+    {{ range .Series }}
+    <div class="series-card">
+        <div class="series-image">
+            {{ if .Logo }}
+            <img src="{{ .Logo }}" alt="{{ .Name }}" loading="lazy">
+            {{ else }}
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pokémon_logo.svg/640px-International_Pokémon_logo.svg.png" alt="{{ .Name }}" loading="lazy">
+            {{ end }}
+        </div>
+        <div class="series-info">
+            <h3>{{ .Name }}</h3>
+            <p class="series-meta">
+                Date de sortie: {{ .ReleaseDate }}
+            </p>
+            <div class="series-stats">
+                <span class="series-stat">{{ .CardCount.Total }} cartes</span>
+                <span class="series-stat">{{ .CardCount.Official }} officielles</span>
+            </div>
+            <a href="/series/{{ .ID }}" class="btn btn-small btn-primary">Voir les cartes</a>
+        </div>
+    </div>
+    {{ else }}
+    <div class="no-results">
+        <p>Aucune série trouvée.</p>
+    </div>
+    {{ end }}
+</div>
+
+{{ if gt .TotalPages 1 }}
+<div class="pagination">
+    {{ if gt .Page 1 }}
+    <a href="/collection?search={{ .Search }}&sort={{ .Sort }}&page={{ .PreviousPage }}" class="btn btn-pagination">← Précédent</a>
+    {{ end }}
+    
+    <span class="page-info">Page {{ .Page }}/{{ .TotalPages }}</span>
+    
+    {{ if lt .Page .TotalPages }}
+    <a href="/collection?search={{ .Search }}&sort={{ .Sort }}&page={{ .NextPage }}" class="btn btn-pagination">Suivant →</a>
+    {{ end }}
+</div>
+{{ end }}
+{{ end }}
+
+{{ define "scripts" }}
+<!-- Aucun script spécifique pour la page collection -->
+{{ end }}

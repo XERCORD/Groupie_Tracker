@@ -1,0 +1,99 @@
+/* Page de détails de carte */
+.card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .card-image-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .card-image-container img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+  }
+  
+  .card-data {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+  
+  .card-data h2 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+  }
+  
+  .card-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .card-attribute {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  .card-attribute:last-child {
+    border-bottom: none;
+  }
+  
+  .attribute-name {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+  }
+  
+  .attribute-value {
+    font-size: 1.1rem;
+  }
+  
+  .card-description {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+  }
+  
+  .card-description h3 {
+    color: #3c5aa6;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+  }
+  
+  /* Cartes similaires */
+  .similar-cards {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 30px;
+  }
+  
+  .similar-cards h3 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .card-details {
+      grid-template-columns: 1fr;
+    }
+    
+    .card-image-container img {
+      max-height: 400px;
+    }
+  }

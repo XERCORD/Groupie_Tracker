@@ -1,0 +1,131 @@
+/* Page de recherche */
+.search-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  .search-section h1 {
+    color: #3c5aa6;
+    margin-bottom: 20px;
+  }
+  
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  
+  /* Résultats de recherche */
+  .results-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .results-header h2 {
+    color: #3c5aa6;
+    font-size: 1.2rem;
+  }
+  
+  .page-size {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .page-size select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  /* Types de cartes */
+  .card-type {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  .card-type.Feu {
+    background-color: #ff7f50;
+    color: #fff;
+  }
+  
+  .card-type.Eau {
+    background-color: #6495ed;
+    color: #fff;
+  }
+  
+  .card-type.Plante {
+    background-color: #9acd32;
+    color: #333;
+  }
+  
+  .card-type.Électrique {
+    background-color: #ffd700;
+    color: #333;
+  }
+  
+  .card-type.Psy {
+    background-color: #da70d6;
+    color: #fff;
+  }
+  
+  .card-type.Combat {
+    background-color: #cd853f;
+    color: #fff;
+  }
+  
+  .card-type.Obscurité {
+    background-color: #708090;
+    color: #fff;
+  }
+  
+  .card-type.Métal {
+    background-color: #c0c0c0;
+    color: #333;
+  }
+  
+  .card-type.Fée {
+    background-color: #ffb6c1;
+    color: #333;
+  }
+  
+  .card-type.Dragon {
+    background-color: #8a2be2;
+    color: #fff;
+  }
+  
+  .card-type.Incolore {
+    background-color: #dcdcdc;
+    color: #333;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .filters {
+      grid-template-columns: 1fr;
+    }
+    
+    .results-header {
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+  }

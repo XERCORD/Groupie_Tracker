@@ -1,0 +1,19 @@
+{{ define "header" }}
+<header class="main-header">
+    <div class="container">
+        <div class="brand">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+            <h1>TCGDEX Explorer</h1>
+        </div>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="/accueil" class="{{ if eq .CurrentPage "accueil" }}active{{ end }}">Accueil</a></li>
+                <li><a href="/collection" class="{{ if eq .CurrentPage "collection" }}active{{ end }}">Collection</a></li>
+                <li><a href="/recherche" class="{{ if eq .CurrentPage "recherche" }}active{{ end }}">Recherche</a></li>
+                <li><a href="/favoris" class="{{ if eq .CurrentPage "favoris" }}active{{ end }}">Favoris</a></li>
+                <li><a href="/a-propos" class="{{ if eq .CurrentPage "a-propos" }}active{{ end }}">À propos</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+{{ end }}

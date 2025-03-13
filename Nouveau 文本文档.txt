@@ -1,0 +1,45 @@
+tcgdex-explorer/
+├── assets/
+│   ├── css/
+│   │   ├── main.css
+│   │   ├── home.css
+│   │   ├── collection.css
+│   │   ├── search.css
+│   │   ├── details.css
+│   │   ├── favorites.css
+│   │   └── about.css
+│   └── js/
+│       └── favorites.js
+├── controllers/
+│   ├── home.go
+│   ├── collection.go
+│   ├── search.go
+│   ├── details.go
+│   ├── favorites.go
+│   ├── about.go
+│   └── error.go
+├── models/
+│   ├── card.go
+│   ├── series.go
+│   └── favorites.go
+├── templates/
+│   ├── layout/
+│   │   ├── base.html
+│   │   ├── header.html
+│   │   └── footer.html
+│   ├── home.html
+│   ├── collection.html
+│   ├── search.html
+│   ├── details.html
+│   ├── favorites.html
+│   ├── about.html
+│   └── error.html
+├── utils/
+│   ├── api.go
+│   └── helpers.go
+├── storage/
+│   └── favorites.json
+├── main.go
+├── routes.go
+├── go.mod
+└── README.md

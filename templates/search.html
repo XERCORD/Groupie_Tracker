@@ -1,0 +1,118 @@
+{{ define "title" }}Recherche{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/search.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="search-section">
+    <h1>Recherche de cartes</h1>
+    
+    <form action="/recherche" method="GET" class="search-form">
+        <div class="form-group">
+            <label for="query">Nom de la carte</label>
+            <input type="text" id="query" name="q" placeholder="Rechercher..." value="{{ .Query }}">
+        </div>
+        
+        <div class="filters">
+            <div class="form-group">
+                <label for="category">Catégorie</label>
+                <select id="category" name="category">
+                    <option value="">Toutes catégories</option>
+                    {{ range .Categories }}
+                    <option value="{{ . }}" {{ if eq $.Category . }}selected{{ end }}>{{ . }}</option>
+                    {{ end }}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type" name="type">
+                    <option value="">Tous types</option>
+                    {{ range .Types }}
+                    <option value="{{ . }}" {{ if eq $.Type . }}selected{{ end }}>{{ . }}</option>
+                    {{ end }}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="rarity">Rareté</label>
+                <select id="rarity" name="rarity">
+                    <option value="">Toutes raretés</option>
+                    {{ range .Rarities }}
+                    <option value="{{ . }}" {{ if eq $.Rarity . }}selected{{ end }}>{{ . }}</option>
+                    {{ end }}
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+</section>
+
+<section class="results-section">
+    <div class="results-header">
+        <h2>Résultats ({{ .TotalResults }} cartes trouvées)</h2>
+        <div class="page-size">
+            <label for="page-size">Afficher:</label>
+            <select id="page-size" onchange="changePageSize(this.value)">
+                <option value="10" {{ if eq .PageSize 10 }}selected{{ end }}>10</option>
+                <option value="20" {{ if eq .PageSize 20 }}selected{{ end }}>20</option>
+                <option value="30" {{ if eq .PageSize 30 }}selected{{ end }}>30</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="cards-grid">
+        {{ range .Cards }}
+        <div class="card">
+            <div class="card-image">
+                <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
+                        data-card-id="{{ .ID }}" 
+                        title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                    {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
+                </button>
+            </div>
+            <div class="card-info">
+                <h3>{{ .Name }}</h3>
+                <div class="card-meta">
+                    <span class="card-category {{ .Category }}">{{ .Category }}</span>
+                    {{ if .Rarity }}<span class="card-rarity">{{ .Rarity }}</span>{{ end }}
+                </div>
+                {{ if .Types }}
+                <div class="card-types">
+                    {{ range .Types }}
+                    <span class="card-type {{ . }}">{{ . }}</span>
+                    {{ end }}
+                </div>
+                {{ end }}
+                <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
+            </div>
+        </div>
+        {{ else }}
+        <div class="no-results">
+            <p>Aucune carte trouvée pour cette recherche.</p>
+        </div>
+        {{ end }}
+    </div>
+    
+    {{ if gt .TotalPages 1 }}
+    <div class="pagination">
+        {{ if gt .Page 1 }}
+        <a href="/recherche?q={{ .Query }}&category={{ .Category }}&type={{ .Type }}&rarity={{ .Rarity }}&page={{ .PreviousPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">← Précédent</a>
+        {{ end }}
+        
+        <span class="page-info">Page {{ .Page }}/{{ .TotalPages }}</span>
+        
+        {{ if lt .Page .TotalPages }}
+        <a href="/recherche?q={{ .Query }}&category={{ .Category }}&type={{ .Type }}&rarity={{ .Rarity }}&page={{ .NextPage }}&pageSize={{ .PageSize }}" class="btn btn-pagination">Suivant →</a>
+        {{ end }}
+    </div>
+    {{ end }}
+</section>
+{{ end }}
+
+{{ define "scripts" }}
+<script src="/static/js/favorites.js"></script>
+{{ end }}

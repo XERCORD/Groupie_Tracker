@@ -1,0 +1,130 @@
+/* Reset de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+.header {
+    background-color: #ffcb05;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 5px solid #3c5aa6;
+}
+
+.header .logo {
+    width: 100px;
+    height: auto;
+}
+
+.header .title {
+    font-size: 2.5rem;
+    color: #3c5aa6;
+    margin-top: 10px;
+}
+
+/* Navigation */
+header {
+    background-color: #3c5aa6;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+header h1 {
+    color: #ffcb05;
+    margin-bottom: 10px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+nav ul li a {
+    color: #ffcb05;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Main Content */
+main#content {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    font-size: 1.2rem;
+    color: #3c5aa6;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.card button {
+    background-color: #ffcb05;
+    color: #3c5aa6;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.card button:hover {
+    background-color: #e6b800;
+}
+
+/* Footer */
+footer {
+    background-color: #3c5aa6;
+    color: #ffcb05;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+    border-top: 5px solid #ffcb05;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header .title {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    main#content {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}

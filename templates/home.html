@@ -1,0 +1,60 @@
+{{ define "title" }}Accueil{{ end }}
+
+{{ define "styles" }}
+<link rel="stylesheet" href="/static/css/home.css">
+{{ end }}
+
+{{ define "content" }}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Bienvenue sur TCGDEX Explorer</h1>
+        <p>Explorez l'univers des cartes Pokémon avec notre application interactive</p>
+        <div class="hero-buttons">
+            <a href="/recherche" class="btn btn-primary">Rechercher des cartes</a>
+            <a href="/collection" class="btn btn-secondary">Voir la collection</a>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature-card">
+        <h2>Recherche avancée</h2>
+        <p>Trouvez rapidement les cartes que vous cherchez grâce à notre système de recherche et de filtrage.</p>
+    </div>
+    <div class="feature-card">
+        <h2>Explorez les collections</h2>
+        <p>Parcourez toutes les séries et extensions disponibles dans le catalogue TCGDEX.</p>
+    </div>
+    <div class="feature-card">
+        <h2>Gérez vos favoris</h2>
+        <p>Sauvegardez vos cartes préférées et retrouvez-les facilement dans votre liste de favoris.</p>
+    </div>
+</section>
+
+<section class="recent-cards">
+    <h2>Cartes récemment ajoutées</h2>
+    <div class="cards-grid">
+        {{ range .RecentCards }}
+        <div class="card">
+            <div class="card-image">
+                <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
+                        data-card-id="{{ .ID }}" 
+                        title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                    {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
+                </button>
+            </div>
+            <div class="card-info">
+                <h3>{{ .Name }}</h3>
+                <p class="card-category {{ .Category }}">{{ .Category }}</p>
+                <a href="/carte/{{ .ID }}" class="btn btn-small">Voir détails</a>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+</section>
+{{ end }}
+
+{{ define "scripts" }}
+<script src="/static/js/favorites.js"></script>
+{{ end }}
