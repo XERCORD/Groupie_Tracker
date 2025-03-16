@@ -35,9 +35,8 @@ L'objectif est de fournir une interface intuitive permettant de rechercher des c
 | `/accueil`         | GET     | Page d'accueil                                  |
 | `/recherche`       | GET     | Page de recherche de cartes                     |
 | `/collection`      | GET     | Affiche tous les sets disponibles               |
-| `/card`            | GET     | Affiche les détails d'une carte spécifique      |
 | `/favorites`       | GET     | Affiche la liste des favoris                    |
-| `/favorite/toggle` | POST    | Ajoute ou retire une carte des favoris          |
+| `/a-propos`        | GET    | A propos du projet                               |
 
 
 ## 🔗 API utilisée
