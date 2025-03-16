@@ -46,9 +46,11 @@ func (f *Favorites) Load() error {
 		// Crée le dossier storage s'il n'existe pas
 		os.MkdirAll("./storage", 0755)
 
-		// Initialise avec un tableau vide et sauvegarde
+		// Initialise avec un tableau vide
 		f.CardIDs = []string{}
-		return f.Save()
+
+		// Sauvegarde sans verrouillage (nous avons déjà le verrou)
+		return f.saveWithoutLock()
 	}
 
 	// Lit le fichier
@@ -72,6 +74,12 @@ func (f *Favorites) Save() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
+	return f.saveWithoutLock()
+}
+
+// saveWithoutLock sauvegarde les favoris sans verrouiller le mutex
+// à utiliser uniquement lorsque le mutex est déjà verrouillé
+func (f *Favorites) saveWithoutLock() error {
 	// Sérialise en JSON
 	data, err := json.Marshal(f)
 	if err != nil {

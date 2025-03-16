@@ -67,17 +67,23 @@ func (c *APIClient) GetRequest(endpoint string) ([]byte, error) {
 }
 
 // IsAPIAvailable vérifie si l'API est disponible
-func IsAPIAvailable(url string) bool {
+func IsAPIAvailable(baseURL string) bool {
+	// Tester l'endpoint /cards qui devrait retourner des données
+	testURL := baseURL + "/cards"
+
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second, // Augmenter le timeout à 10 secondes
 	}
 
-	resp, err := client.Get(url)
+	fmt.Printf("Vérification de la disponibilité de l'API à l'URL: %s\n", testURL)
+	resp, err := client.Get(testURL)
 	if err != nil {
+		fmt.Printf("Erreur lors de la connexion à l'API: %v\n", err)
 		return false
 	}
 	defer resp.Body.Close()
 
+	fmt.Printf("Statut de réponse: %d\n", resp.StatusCode)
 	return resp.StatusCode == http.StatusOK
 }
 
