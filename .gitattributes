@@ -1,0 +1,15 @@
+# Normalisation automatique des fins de ligne
+* text=auto
+
+# Go
+*.go text eol=lf
+
+# Web
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Config
+*.json text eol=lf
+*.mod text eol=lf
+*.md text eol=lf
