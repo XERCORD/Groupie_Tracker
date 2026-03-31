@@ -11,6 +11,13 @@ type Series struct {
 	ReleaseDate string    `json:"releaseDate"`
 	CardCount   CardCount `json:"cardCount"`
 	Logo        string    `json:"logo,omitempty"`
+	SerieID     string    `json:"-"`
+	SerieName   string    `json:"-"`
+}
+
+type SerieOption struct {
+	ID   string
+	Name string
 }
 
 type CardCount struct {
@@ -50,4 +57,17 @@ func FilterSeries(series []Series, search string) []Series {
 		}
 	}
 	return result
+}
+
+func FilterSeriesBySerieBlock(series []Series, serieID string) []Series {
+	if serieID == "" {
+		return series
+	}
+	var out []Series
+	for _, s := range series {
+		if s.SerieID == serieID {
+			out = append(out, s)
+		}
+	}
+	return out
 }

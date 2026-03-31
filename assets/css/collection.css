@@ -60,6 +60,17 @@
     margin-bottom: 8px;
     color: #3c5aa6;
   }
+
+  .series-block-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    background: #e8eef9;
+    color: #3c5aa6;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
   
   .series-meta {
     font-size: 0.9rem;

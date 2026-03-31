@@ -32,8 +32,10 @@
             <div class="card-image-container">
                 <img src="{{ .Card.Image }}" alt="{{ .Card.Name }}">
                 <div class="card-actions">
-                    <button class="favorite-btn {{ if .Card.IsFavorite }}active{{ end }}" 
-                            data-card-id="{{ .Card.ID }}" 
+                    <button type="button"
+                            class="favorite-btn favorite-btn--detail {{ if .Card.IsFavorite }}active{{ end }}"
+                            data-card-id="{{ .Card.ID }}"
+                            data-fav-kind="detail"
                             title="{{ if .Card.IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
                         {{ if .Card.IsFavorite }}❤️ Dans vos favoris{{ else }}🤍 Ajouter aux favoris{{ end }}
                     </button>
@@ -116,8 +118,9 @@
                 <div class="card">
                     <div class="card-image">
                         <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
-                        <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
-                                data-card-id="{{ .ID }}" 
+                        <button type="button" class="favorite-btn {{ if .IsFavorite }}active{{ end }}"
+                                data-card-id="{{ .ID }}"
+                                data-fav-kind="icon"
                                 title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
                             {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
                         </button>

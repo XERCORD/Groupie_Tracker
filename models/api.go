@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,95 @@ const (
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
+
+type cacheEntry struct {
+	data      interface{}
+	expiresAt time.Time
+}
+
+var (
+	cacheMu         sync.Mutex
+	allCardsCache   *cacheEntry
+	serieBlocksCache *cacheEntry
+	cardCache       = make(map[string]*cacheEntry)
+	cacheTTL        = 5 * time.Minute
+)
+
+type tcgSeriesListResponse struct {
+	Value []struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"value"`
+}
+
+type serieBlockData struct {
+	ByID    map[string]string
+	IDsDesc []string
+}
+
+func getSerieBlockData() (*serieBlockData, error) {
+	cacheMu.Lock()
+	if serieBlocksCache != nil && time.Now().Before(serieBlocksCache.expiresAt) {
+		d := serieBlocksCache.data.(*serieBlockData)
+		cacheMu.Unlock()
+		return d, nil
+	}
+	cacheMu.Unlock()
+
+	var raw tcgSeriesListResponse
+	if err := fetchJSON(SeriesURL, &raw); err != nil {
+		return nil, err
+	}
+
+	byID := make(map[string]string)
+	ids := make([]string, 0, len(raw.Value))
+	for _, v := range raw.Value {
+		if v.ID == "" {
+			continue
+		}
+		byID[v.ID] = v.Name
+		ids = append(ids, v.ID)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		if len(ids[i]) != len(ids[j]) {
+			return len(ids[i]) > len(ids[j])
+		}
+		return ids[i] < ids[j]
+	})
+
+	d := &serieBlockData{ByID: byID, IDsDesc: ids}
+	cacheMu.Lock()
+	serieBlocksCache = &cacheEntry{data: d, expiresAt: time.Now().Add(cacheTTL)}
+	cacheMu.Unlock()
+	return d, nil
+}
+
+func serieIDForSet(setID string, data *serieBlockData) string {
+	if data == nil {
+		return ""
+	}
+	for _, id := range data.IDsDesc {
+		if strings.HasPrefix(setID, id) {
+			return id
+		}
+	}
+	return ""
+}
+
+func GetSerieOptions() ([]SerieOption, error) {
+	data, err := getSerieBlockData()
+	if err != nil {
+		return nil, err
+	}
+	opts := make([]SerieOption, 0, len(data.ByID))
+	for id, name := range data.ByID {
+		opts = append(opts, SerieOption{ID: id, Name: name})
+	}
+	sort.Slice(opts, func(i, j int) bool {
+		return strings.ToLower(opts[i].Name) < strings.ToLower(opts[j].Name)
+	})
+	return opts, nil
+}
 
 func IsAPIAvailable(baseURL string) bool {
 	client := &http.Client{Timeout: 10 * time.Second}
@@ -101,14 +191,35 @@ func FetchCardDetails(cards []Card) []Card {
 }
 
 func GetAllCards() ([]Card, error) {
+	cacheMu.Lock()
+	if allCardsCache != nil && time.Now().Before(allCardsCache.expiresAt) {
+		cards := allCardsCache.data.([]Card)
+		cacheMu.Unlock()
+		return cards, nil
+	}
+	cacheMu.Unlock()
+
 	var cards []Card
 	if err := fetchJSON(CardsURL, &cards); err != nil {
 		return nil, err
 	}
+
+	cacheMu.Lock()
+	allCardsCache = &cacheEntry{data: cards, expiresAt: time.Now().Add(cacheTTL)}
+	cacheMu.Unlock()
+
 	return cards, nil
 }
 
 func GetCardByID(cardID string) (Card, error) {
+	cacheMu.Lock()
+	if entry, ok := cardCache[cardID]; ok && time.Now().Before(entry.expiresAt) {
+		card := entry.data.(Card)
+		cacheMu.Unlock()
+		return card, nil
+	}
+	cacheMu.Unlock()
+
 	var card Card
 	if err := fetchJSON(fmt.Sprintf(CardURL, cardID), &card); err != nil {
 		return Card{}, err
@@ -116,6 +227,11 @@ func GetCardByID(cardID string) (Card, error) {
 	card.Image = appendImageSuffix(card.Image, "/high.webp")
 	card.SeriesID = card.Set.ID
 	card.SeriesName = card.Set.Name
+
+	cacheMu.Lock()
+	cardCache[cardID] = &cacheEntry{data: card, expiresAt: time.Now().Add(cacheTTL)}
+	cacheMu.Unlock()
+
 	return card, nil
 }
 
@@ -124,8 +240,17 @@ func GetAllSeries() ([]Series, error) {
 	if err := fetchJSON(SetsURL, &series); err != nil {
 		return nil, err
 	}
+	blocks, err := getSerieBlockData()
+	if err != nil {
+		blocks = &serieBlockData{ByID: map[string]string{}, IDsDesc: nil}
+	}
 	for i := range series {
 		series[i].Logo = appendImageSuffix(series[i].Logo, ".webp")
+		sid := serieIDForSet(series[i].ID, blocks)
+		series[i].SerieID = sid
+		if sid != "" {
+			series[i].SerieName = blocks.ByID[sid]
+		}
 	}
 	return series, nil
 }
@@ -147,7 +272,36 @@ func GetSeriesByID(seriesID string) (Series, error) {
 		return Series{}, err
 	}
 	series.Logo = appendImageSuffix(series.Logo, ".webp")
+	blocks, _ := getSerieBlockData()
+	if blocks != nil {
+		sid := serieIDForSet(series.ID, blocks)
+		series.SerieID = sid
+		if sid != "" {
+			series.SerieName = blocks.ByID[sid]
+		}
+	}
 	return series, nil
+}
+
+func GetSetsByIDs(setIDs []string) ([]Series, error) {
+	if len(setIDs) == 0 {
+		return nil, nil
+	}
+	all, err := GetAllSeries()
+	if err != nil {
+		return nil, err
+	}
+	byID := make(map[string]Series, len(all))
+	for _, s := range all {
+		byID[s.ID] = s
+	}
+	out := make([]Series, 0, len(setIDs))
+	for _, id := range setIDs {
+		if s, ok := byID[id]; ok {
+			out = append(out, s)
+		}
+	}
+	return out, nil
 }
 
 func GetCardsBySeries(setID string) ([]Card, error) {

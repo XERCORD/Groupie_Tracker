@@ -46,6 +46,24 @@
         max-width: 100%;
         max-height: 100%;
     }
+
+    .series-fav-row {
+        margin: 16px 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .favorite-btn--set-header {
+        position: static !important;
+        width: auto;
+        min-height: 44px;
+        height: auto;
+        border-radius: 999px;
+        padding: 10px 22px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
     </style>
 </head>
 <body>
@@ -77,6 +95,16 @@
             
             <h1>{{ .Series.Name }}</h1>
             <p>Collection de cartes de cette série</p>
+
+            <div class="series-fav-row">
+                <button type="button"
+                        class="favorite-btn favorite-btn--set-header {{ if .IsSetFavorite }}active{{ end }}"
+                        data-set-id="{{ .Series.ID }}"
+                        data-fav-kind="set"
+                        title="{{ if .IsSetFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
+                    {{ if .IsSetFavorite }}❤️ Extension en favoris{{ else }}🤍 Ajouter l'extension aux favoris{{ end }}
+                </button>
+            </div>
             
             <div class="series-header-info">
                 <span class="series-header-stat">{{ .Series.CardCount.Total }} cartes</span>
@@ -102,8 +130,9 @@
                 <div class="card">
                     <div class="card-image">
                         <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
-                        <button class="favorite-btn {{ if .IsFavorite }}active{{ end }}" 
-                                data-card-id="{{ .ID }}" 
+                        <button type="button" class="favorite-btn {{ if .IsFavorite }}active{{ end }}"
+                                data-card-id="{{ .ID }}"
+                                data-fav-kind="icon"
                                 title="{{ if .IsFavorite }}Retirer des favoris{{ else }}Ajouter aux favoris{{ end }}">
                             {{ if .IsFavorite }}❤️{{ else }}🤍{{ end }}
                         </button>

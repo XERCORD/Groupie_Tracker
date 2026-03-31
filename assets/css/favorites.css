@@ -43,12 +43,70 @@
     font-size: 1.1rem;
   }
   
+  .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .favorites-subtitle {
+    margin: 28px 0 16px;
+    color: #3c5aa6;
+    font-size: 1.25rem;
+  }
+
+  .favorite-sets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .favorite-set-card {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #eee;
+  }
+
+  .favorite-set-logo {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .favorite-set-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .favorite-set-card h3 {
+    font-size: 1rem;
+    color: #3c5aa6;
+    margin-bottom: 8px;
+  }
+
+  .favorite-set-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
   /* Actions groupées */
   .bulk-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
   
   /* Animation pour retirer des favoris */
@@ -63,7 +121,8 @@
     }
   }
   
-  .card.removing {
+  .card.removing,
+  .favorite-set-card.removing {
     animation: fadeOut 0.3s forwards;
   }
   

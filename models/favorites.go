@@ -8,6 +8,7 @@ import (
 
 type Favorites struct {
 	CardIDs []string `json:"favorites"`
+	SetIDs  []string `json:"favoriteSets,omitempty"`
 	mu      sync.Mutex
 }
 
@@ -20,7 +21,7 @@ var (
 
 func GetFavorites() *Favorites {
 	once.Do(func() {
-		favoritesInstance = &Favorites{CardIDs: []string{}}
+		favoritesInstance = &Favorites{CardIDs: []string{}, SetIDs: []string{}}
 		favoritesInstance.Load()
 	})
 	return favoritesInstance
@@ -33,6 +34,7 @@ func (f *Favorites) Load() error {
 	if _, err := os.Stat(favoritesFilePath); os.IsNotExist(err) {
 		os.MkdirAll("./storage", 0755)
 		f.CardIDs = []string{}
+		f.SetIDs = []string{}
 		return f.saveWithoutLock()
 	}
 
@@ -43,10 +45,20 @@ func (f *Favorites) Load() error {
 
 	if len(data) == 0 {
 		f.CardIDs = []string{}
+		f.SetIDs = []string{}
 		return nil
 	}
 
-	return json.Unmarshal(data, f)
+	if err := json.Unmarshal(data, f); err != nil {
+		return err
+	}
+	if f.CardIDs == nil {
+		f.CardIDs = []string{}
+	}
+	if f.SetIDs == nil {
+		f.SetIDs = []string{}
+	}
+	return nil
 }
 
 func (f *Favorites) Save() error {
@@ -122,9 +134,69 @@ func (f *Favorites) GetAll() []string {
 	return result
 }
 
+func (f *Favorites) AddSet(setID string) error {
+	f.mu.Lock()
+	for _, id := range f.SetIDs {
+		if id == setID {
+			f.mu.Unlock()
+			return nil
+		}
+	}
+	f.SetIDs = append(f.SetIDs, setID)
+	f.mu.Unlock()
+	return f.Save()
+}
+
+func (f *Favorites) RemoveSet(setID string) error {
+	f.mu.Lock()
+	index := -1
+	for i, id := range f.SetIDs {
+		if id == setID {
+			index = i
+			break
+		}
+	}
+	if index >= 0 {
+		f.SetIDs = append(f.SetIDs[:index], f.SetIDs[index+1:]...)
+	}
+	f.mu.Unlock()
+	return f.Save()
+}
+
+func (f *Favorites) ToggleSet(setID string) (bool, error) {
+	isFav := f.ContainsSet(setID)
+	var err error
+	if isFav {
+		err = f.RemoveSet(setID)
+	} else {
+		err = f.AddSet(setID)
+	}
+	return !isFav, err
+}
+
+func (f *Favorites) ContainsSet(setID string) bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	for _, id := range f.SetIDs {
+		if id == setID {
+			return true
+		}
+	}
+	return false
+}
+
+func (f *Favorites) GetAllSets() []string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	out := make([]string, len(f.SetIDs))
+	copy(out, f.SetIDs)
+	return out
+}
+
 func (f *Favorites) Clear() error {
 	f.mu.Lock()
 	f.CardIDs = []string{}
+	f.SetIDs = []string{}
 	f.mu.Unlock()
 	return f.Save()
 }

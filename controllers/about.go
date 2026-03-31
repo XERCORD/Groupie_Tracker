@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 	"projet-groupie/utils"
 )
@@ -9,7 +8,7 @@ import (
 func AboutController(w http.ResponseWriter, r *http.Request) {
 	data := struct{ CurrentPage string }{"a-propos"}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	tmpl, err := getTemplates()
 	if err != nil {
 		utils.HandleError(err, "Erreur chargement templates")
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)

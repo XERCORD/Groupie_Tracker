@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"html/template"
 	"net/http"
 	"projet-groupie/models"
 	"projet-groupie/utils"
+	"strings"
 )
 
 func FavoritesController(w http.ResponseWriter, r *http.Request) {
@@ -20,12 +20,19 @@ func FavoritesController(w http.ResponseWriter, r *http.Request) {
 		favoriteCards[i].IsFavorite = true
 	}
 
-	data := struct {
-		CurrentPage string
-		Cards       []models.Card
-	}{"favoris", favoriteCards}
+	favoriteSets, err := models.GetSetsByIDs(favorites.GetAllSets())
+	if err != nil {
+		RenderErrorPage(w, http.StatusInternalServerError, "Erreur Serveur", "Impossible de récupérer les extensions favorites")
+		return
+	}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	data := struct {
+		CurrentPage  string
+		Cards        []models.Card
+		FavoriteSets []models.Series
+	}{"favoris", favoriteCards, favoriteSets}
+
+	tmpl, err := getTemplates()
 	if err != nil {
 		utils.HandleError(err, "Erreur chargement templates")
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)
@@ -40,6 +47,7 @@ func FavoritesController(w http.ResponseWriter, r *http.Request) {
 
 type ToggleFavoriteRequest struct {
 	CardID string `json:"cardId"`
+	SetID  string `json:"setId"`
 }
 
 type ToggleFavoriteResponse struct {
@@ -61,20 +69,32 @@ func ToggleFavoriteController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.CardID == "" {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: false, Message: "ID de carte non spécifié"})
+	setID := strings.TrimSpace(req.SetID)
+	cardID := strings.TrimSpace(req.CardID)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if setID != "" {
+		isFavorite, err := models.GetFavorites().ToggleSet(setID)
+		if err != nil {
+			json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: false, Message: "Erreur lors de la modification des favoris"})
+			return
+		}
+		json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: true, IsFavorite: isFavorite})
 		return
 	}
 
-	isFavorite, err := models.GetFavorites().Toggle(req.CardID)
+	if cardID == "" {
+		json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: false, Message: "ID non spécifié"})
+		return
+	}
+
+	isFavorite, err := models.GetFavorites().Toggle(cardID)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: false, Message: "Erreur lors de la modification des favoris"})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ToggleFavoriteResponse{Success: true, IsFavorite: isFavorite})
 }
 

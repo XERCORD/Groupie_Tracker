@@ -1,171 +1,153 @@
-/**
- * Script pour gérer les favoris
- */
+function updateFavoriteButton(button, isFavorite) {
+  const kind = button.dataset.favKind || 'icon';
+  if (kind === 'detail') {
+    button.innerHTML = isFavorite ? '❤️ Dans vos favoris' : '🤍 Ajouter aux favoris';
+  } else if (kind === 'set') {
+    button.innerHTML = isFavorite ? '❤️ Extension en favoris' : '🤍 Ajouter l\'extension aux favoris';
+  } else {
+    button.innerHTML = isFavorite ? '❤️' : '🤍';
+  }
+  button.classList.toggle('active', isFavorite);
+  button.title = isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris';
+}
 
-// Fonction pour ajouter/retirer une carte des favoris
-function toggleFavorite(cardId, button) {
-    // Appel AJAX pour modifier les favoris
-    fetch('/api/favoris/toggle', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ cardId: cardId }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Mettre à jour l'interface utilisateur
-        if (data.isFavorite) {
-          // Ajouté aux favoris
-          button.innerHTML = '❤️';
-          button.classList.add('active');
-          button.title = 'Retirer des favoris';
-          
-          // Afficher une notification
-          showNotification('Carte ajoutée aux favoris', 'success');
-        } else {
-          // Retiré des favoris
-          button.innerHTML = '🤍';
-          button.classList.remove('active');
-          button.title = 'Ajouter aux favoris';
-          
-          // Si on est sur la page des favoris, supprimer la carte visuellement
-          if (window.location.pathname === '/favoris') {
-            const card = button.closest('.card');
-            if (card) {
-              card.classList.add('removing');
-              setTimeout(() => {
-                card.remove();
-                
-                // Vérifier s'il reste des cartes
-                const remainingCards = document.querySelectorAll('.cards-grid .card');
-                if (remainingCards.length === 0) {
-                  // Recharger la page pour afficher le message "Aucun favori"
-                  window.location.reload();
-                }
-              }, 300);
-            }
+function toggleFavoriteRequest(body, button) {
+  fetch('/api/favoris/toggle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        showNotification(data.message || 'Une erreur est survenue', 'error');
+        return;
+      }
+      const kind = button.dataset.favKind || 'icon';
+      if (kind !== 'set-card') {
+        updateFavoriteButton(button, data.isFavorite);
+      }
+
+      if (window.location.pathname === '/favoris') {
+        if (kind === 'set-card' && !data.isFavorite) {
+          const block = button.closest('.favorite-set-card');
+          if (block) {
+            block.classList.add('removing');
+            setTimeout(() => block.remove(), 300);
           }
-          
-          // Afficher une notification
-          showNotification('Carte retirée des favoris', 'info');
         }
+        if (kind === 'icon' && !data.isFavorite) {
+          const card = button.closest('.card');
+          if (card) {
+            card.classList.add('removing');
+            setTimeout(() => {
+              card.remove();
+              reloadFavoritesIfEmpty();
+            }, 300);
+          }
+        }
+        return;
+      }
+
+      if (data.isFavorite) {
+        showNotification(
+          body.setId ? 'Extension ajoutée aux favoris' : 'Carte ajoutée aux favoris',
+          'success'
+        );
       } else {
-        // Erreur
-        showNotification('Une erreur est survenue', 'error');
+        showNotification(
+          body.setId ? 'Extension retirée des favoris' : 'Carte retirée des favoris',
+          'info'
+        );
       }
     })
-    .catch(error => {
-      console.error('Erreur:', error);
+    .catch((err) => {
+      console.error(err);
       showNotification('Une erreur est survenue', 'error');
     });
+}
+
+function reloadFavoritesIfEmpty() {
+  const cardsLeft = document.querySelectorAll('.cards-grid .card').length;
+  const setsLeft = document.querySelectorAll('.favorite-set-card').length;
+  if (cardsLeft === 0 && setsLeft === 0) {
+    window.location.reload();
   }
-  
-  // Fonction pour changer la taille de la page dans les résultats de recherche
-  function changePageSize(size) {
-    // Récupérer l'URL actuelle
-    const url = new URL(window.location.href);
-    
-    // Mettre à jour le paramètre pageSize
-    url.searchParams.set('pageSize', size);
-    
-    // Revenir à la page 1
-    url.searchParams.set('page', '1');
-    
-    // Rediriger vers la nouvelle URL
-    window.location.href = url.toString();
+}
+
+function clearAllFavorites() {
+  if (!confirm('Supprimer toutes les cartes et extensions favorites ?')) return;
+  fetch('/api/favoris/clear', { method: 'POST' })
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.success) window.location.reload();
+      else showNotification('Une erreur est survenue', 'error');
+    })
+    .catch(() => showNotification('Une erreur est survenue', 'error'));
+}
+
+function showNotification(message, type = 'info') {
+  let notification = document.getElementById('notification');
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.id = 'notification';
+    document.body.appendChild(notification);
   }
-  
-  // Fonction pour supprimer tous les favoris
-  function clearAllFavorites() {
-    if (confirm('Êtes-vous sûr de vouloir supprimer tous vos favoris ?')) {
-      fetch('/api/favoris/clear', {
-        method: 'POST',
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Recharger la page
-          window.location.reload();
-        } else {
-          showNotification('Une erreur est survenue', 'error');
-        }
-      })
-      .catch(error => {
-        console.error('Erreur:', error);
-        showNotification('Une erreur est survenue', 'error');
-      });
-    }
-  }
-  
-  // Fonction pour afficher des notifications
-  function showNotification(message, type = 'info') {
-    // Créer l'élément de notification s'il n'existe pas déjà
-    let notification = document.getElementById('notification');
-    if (!notification) {
-      notification = document.createElement('div');
-      notification.id = 'notification';
-      document.body.appendChild(notification);
-    }
-    
-    // Définir le style de base
-    notification.style.position = 'fixed';
-    notification.style.bottom = '20px';
-    notification.style.right = '20px';
-    notification.style.padding = '10px 15px';
-    notification.style.borderRadius = '4px';
-    notification.style.fontSize = '0.9rem';
-    notification.style.fontWeight = '600';
-    notification.style.zIndex = '1000';
-    notification.style.transition = 'opacity 0.3s';
-    
-    // Définir la couleur selon le type
-    switch (type) {
-      case 'success':
-        notification.style.backgroundColor = '#4CAF50';
-        notification.style.color = '#fff';
-        break;
-      case 'error':
-        notification.style.backgroundColor = '#F44336';
-        notification.style.color = '#fff';
-        break;
-      case 'warning':
-        notification.style.backgroundColor = '#FF9800';
-        notification.style.color = '#fff';
-        break;
-      default:
-        notification.style.backgroundColor = '#2196F3';
-        notification.style.color = '#fff';
-    }
-    
-    // Définir le message
-    notification.textContent = message;
-    
-    // Afficher la notification
-    notification.style.opacity = '1';
-    
-    // Cacher la notification après 3 secondes
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      setTimeout(() => {
-        notification.remove();
-      }, 300);
-    }, 3000);
-  }
-  
-  // Vérifier si la page est chargée
-  document.addEventListener('DOMContentLoaded', () => {
-    // Initialiser les boutons de favoris
-    const favoriteButtons = document.querySelectorAll('.favorite-btn');
-    favoriteButtons.forEach(button => {
-      const cardId = button.getAttribute('data-card-id');
-      button.addEventListener('click', () => toggleFavorite(cardId, button));
-    });
-    
-    // Initialiser le bouton pour supprimer tous les favoris (si présent)
-    const clearButton = document.getElementById('clear-favorites');
-    if (clearButton) {
-      clearButton.addEventListener('click', clearAllFavorites);
+  notification.style.cssText =
+    'position:fixed;bottom:20px;right:20px;padding:10px 15px;border-radius:4px;font-size:0.9rem;font-weight:600;z-index:1000;transition:opacity 0.3s';
+  const colors = {
+    success: ['#4CAF50', '#fff'],
+    error: ['#F44336', '#fff'],
+    warning: ['#FF9800', '#fff'],
+    info: ['#2196F3', '#fff'],
+  };
+  const [bg, fg] = colors[type] || colors.info;
+  notification.style.backgroundColor = bg;
+  notification.style.color = fg;
+  notification.textContent = message;
+  notification.style.opacity = '1';
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+function bindFavoriteClick(button) {
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const setId = button.getAttribute('data-set-id');
+    const cardId = button.getAttribute('data-card-id');
+    if (setId) {
+      toggleFavoriteRequest({ setId }, button);
+    } else if (cardId) {
+      toggleFavoriteRequest({ cardId }, button);
     }
   });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.favorite-btn').forEach(bindFavoriteClick);
+  document.querySelectorAll('.js-favorite-set-toggle').forEach(bindFavoriteClick);
+
+  const clearBtn = document.getElementById('clear-favorites');
+  if (clearBtn) clearBtn.addEventListener('click', clearAllFavorites);
+
+  document.querySelectorAll('.card-image img').forEach((img) => {
+    img.addEventListener('error', function () {
+      this.style.display = 'none';
+      const wrap = this.closest('.card-image');
+      if (wrap && !wrap.querySelector('.no-image')) {
+        wrap.classList.add('no-image');
+      }
+    });
+  });
+});
+
+function changePageSize(size) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('pageSize', size);
+  url.searchParams.set('page', '1');
+  window.location.href = url.toString();
+}
+window.changePageSize = changePageSize;

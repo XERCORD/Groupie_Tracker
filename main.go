@@ -14,11 +14,19 @@ func main() {
 	if !models.IsAPIAvailable(models.BaseURL) {
 		log.Fatal("L'API TCGDEX n'est pas disponible. Vérifiez votre connexion internet.")
 	}
-
 	fmt.Println("API TCGDEX disponible")
 
 	favorites := models.GetFavorites()
-	fmt.Printf("Favoris chargés: %d cartes\n", favorites.Count())
+	fmt.Printf("Favoris chargés: %d cartes, %d extensions\n", favorites.Count(), len(favorites.GetAllSets()))
+
+	go func() {
+		fmt.Println("Pré-chargement du cache des cartes...")
+		if _, err := models.GetAllCards(); err != nil {
+			log.Printf("Avertissement pré-chargement: %v", err)
+		} else {
+			fmt.Println("Cache des cartes prêt.")
+		}
+	}()
 
 	setupRoutes()
 

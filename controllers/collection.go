@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 	"projet-groupie/models"
 	"projet-groupie/utils"
@@ -10,6 +9,7 @@ import (
 
 func CollectionController(w http.ResponseWriter, r *http.Request) {
 	search := r.URL.Query().Get("search")
+	serieFilter := r.URL.Query().Get("serie")
 	sort := r.URL.Query().Get("sort")
 	if sort == "" {
 		sort = "name"
@@ -28,7 +28,13 @@ func CollectionController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sortedSeries := models.SortSeries(models.FilterSeries(allSeries, search), sort)
+	serieOpts, err := models.GetSerieOptions()
+	if err != nil {
+		serieOpts = nil
+	}
+
+	filtered := models.FilterSeriesBySerieBlock(models.FilterSeries(allSeries, search), serieFilter)
+	sortedSeries := models.SortSeries(filtered, sort)
 	totalResults := len(sortedSeries)
 
 	totalPages := (totalResults + pageSize - 1) / pageSize
@@ -53,19 +59,21 @@ func CollectionController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		CurrentPage  string
-		Series       []models.Series
-		Search       string
-		Sort         string
-		Page         int
-		PageSize     int
-		PreviousPage int
-		NextPage     int
-		TotalPages   int
-		TotalResults int
-	}{"collection", paginatedSeries, search, sort, page, pageSize, page - 1, page + 1, totalPages, totalResults}
+		CurrentPage   string
+		Series        []models.Series
+		SerieOptions  []models.SerieOption
+		Search        string
+		SerieFilter   string
+		Sort          string
+		Page          int
+		PageSize      int
+		PreviousPage  int
+		NextPage      int
+		TotalPages    int
+		TotalResults  int
+	}{"collection", paginatedSeries, serieOpts, search, serieFilter, sort, page, pageSize, page - 1, page + 1, totalPages, totalResults}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	tmpl, err := getTemplates()
 	if err != nil {
 		utils.HandleError(err, "Erreur chargement templates")
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)
@@ -138,18 +146,19 @@ func SeriesController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		CurrentPage  string
-		Series       models.Series
-		Cards        []models.Card
-		Page         int
-		PageSize     int
-		PreviousPage int
-		NextPage     int
-		TotalPages   int
-		TotalResults int
-	}{"collection", series, paginatedCards, page, pageSize, page - 1, page + 1, totalPages, totalResults}
+		CurrentPage   string
+		Series        models.Series
+		Cards         []models.Card
+		IsSetFavorite bool
+		Page          int
+		PageSize      int
+		PreviousPage  int
+		NextPage      int
+		TotalPages    int
+		TotalResults  int
+	}{"collection", series, paginatedCards, favorites.ContainsSet(series.ID), page, pageSize, page - 1, page + 1, totalPages, totalResults}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	tmpl, err := getTemplates()
 	if err != nil {
 		utils.HandleError(err, "Erreur chargement templates")
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)

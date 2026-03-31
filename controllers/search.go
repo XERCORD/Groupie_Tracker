@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 	"projet-groupie/models"
 	"projet-groupie/utils"
@@ -78,7 +77,7 @@ func SearchController(w http.ResponseWriter, r *http.Request) {
 		cards, categories, types, rarities,
 	}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	tmpl, err := getTemplates()
 	if err != nil {
 		utils.HandleError(err, "Erreur chargement templates")
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 	"projet-groupie/utils"
 )
@@ -16,7 +15,7 @@ func RenderErrorPage(w http.ResponseWriter, statusCode int, errorTitle, errorMes
 		ErrorMessage string
 	}{"error", statusCode, errorTitle, errorMessage}
 
-	tmpl, err := template.ParseGlob("templates/*.html")
+	tmpl, err := getTemplates()
 	if err != nil {
 		http.Error(w, errorMessage, statusCode)
 		return

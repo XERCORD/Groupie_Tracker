@@ -12,6 +12,25 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     padding: 30px;
     text-align: center;
+    position: relative;
+  }
+
+  .favorite-btn--detail {
+    position: static !important;
+    width: 100%;
+    max-width: 320px;
+    margin: 18px auto 0;
+    height: auto !important;
+    min-height: 48px;
+    border-radius: 10px !important;
+    padding: 12px 18px !important;
+    font-size: 1rem;
+    font-weight: 600;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(60, 90, 166, 0.2);
+    z-index: 2;
   }
   
   .card-image-container img {
