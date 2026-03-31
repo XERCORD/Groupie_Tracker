@@ -6,460 +6,288 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
-// Constants pour les URLs de l'API
 const (
 	BaseURL      = "https://api.tcgdex.net/v2/fr"
 	CardsURL     = BaseURL + "/cards"
 	SeriesURL    = BaseURL + "/series"
 	SetsURL      = BaseURL + "/sets"
-	CardURL      = BaseURL + "/cards/%s" // %s sera remplacé par l'ID de la carte
-	SeriesSetURL = BaseURL + "/sets/%s"  // %s sera remplacé par l'ID de la série
+	CardURL      = BaseURL + "/cards/%s"
+	SeriesSetURL = BaseURL + "/sets/%s"
 )
 
-// APIClient représente un client pour l'API
-type APIClient struct {
-	BaseURL    string
-	HTTPClient *http.Client
-}
+var httpClient = &http.Client{Timeout: 10 * time.Second}
 
-// NewAPIClient crée un nouveau client API
-func NewAPIClient(baseURL string) *APIClient {
-	return &APIClient{
-		BaseURL: baseURL,
-		HTTPClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-	}
-}
-
-// Client HTTP avec timeout par défaut
-var httpClient = &http.Client{
-	Timeout: 10 * time.Second,
-}
-
-// GetRequest effectue une requête GET vers l'URL spécifiée
-func (c *APIClient) GetRequest(endpoint string) ([]byte, error) {
-	// Construit l'URL complète
-	url := c.BaseURL + endpoint
-
-	// Effectue la requête HTTP
-	resp, err := c.HTTPClient.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la requête API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Vérifie le code de statut
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API a retourné le statut: %d", resp.StatusCode)
-	}
-
-	// Lit le corps de la réponse
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la lecture de la réponse: %w", err)
-	}
-
-	return body, nil
-}
-
-// IsAPIAvailable vérifie si l'API est disponible
 func IsAPIAvailable(baseURL string) bool {
-	// Tester l'endpoint /cards qui devrait retourner des données
-	testURL := baseURL + "/cards"
-
-	client := &http.Client{
-		Timeout: 10 * time.Second, // Augmenter le timeout à 10 secondes
-	}
-
-	fmt.Printf("Vérification de la disponibilité de l'API à l'URL: %s\n", testURL)
-	resp, err := client.Get(testURL)
+	client := &http.Client{Timeout: 10 * time.Second}
+	fmt.Printf("Vérification de l'API à : %s/cards\n", baseURL)
+	resp, err := client.Get(baseURL + "/cards")
 	if err != nil {
-		fmt.Printf("Erreur lors de la connexion à l'API: %v\n", err)
+		fmt.Printf("Erreur connexion API: %v\n", err)
 		return false
 	}
 	defer resp.Body.Close()
-
 	fmt.Printf("Statut de réponse: %d\n", resp.StatusCode)
 	return resp.StatusCode == http.StatusOK
 }
 
-// ParseQueryParams construit une chaîne de requête à partir d'une map de paramètres
-func ParseQueryParams(params map[string]string) string {
-	if len(params) == 0 {
-		return ""
-	}
-
-	query := "?"
-	first := true
-	for key, value := range params {
-		if !first {
-			query += "&"
-		}
-		query += key + "=" + value
-		first = false
-	}
-
-	return query
-}
-
-// GetAllCards récupère toutes les cartes depuis l'API
-func GetAllCards() ([]Card, error) {
-	// Effectue la requête HTTP
-	resp, err := httpClient.Get(CardsURL)
+func fetchJSON(url string, dest interface{}) error {
+	resp, err := httpClient.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la requête API: %w", err)
+		return fmt.Errorf("erreur requête: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Vérifie le code de statut
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API a retourné le statut: %d", resp.StatusCode)
+		return fmt.Errorf("statut API: %d", resp.StatusCode)
 	}
 
-	// Lit le corps de la réponse
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la lecture de la réponse: %w", err)
+		return fmt.Errorf("erreur lecture réponse: %w", err)
 	}
 
-	// Désérialise le JSON
+	if err := json.Unmarshal(body, dest); err != nil {
+		return fmt.Errorf("erreur désérialisation: %w", err)
+	}
+	return nil
+}
+
+func appendImageSuffix(url, suffix string) string {
+	if url == "" || strings.HasSuffix(url, ".webp") || strings.HasSuffix(url, ".png") {
+		return url
+	}
+	return url + suffix
+}
+
+func FetchCardDetails(cards []Card) []Card {
+	type result struct {
+		index int
+		card  Card
+	}
+
+	results := make(chan result, len(cards))
+	sem := make(chan struct{}, 10)
+
+	var wg sync.WaitGroup
+	for i, c := range cards {
+		wg.Add(1)
+		go func(idx int, card Card) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			fullCard, err := GetCardByID(card.ID)
+			if err == nil {
+				results <- result{idx, fullCard}
+			} else {
+				results <- result{idx, card}
+			}
+		}(i, c)
+	}
+
+	wg.Wait()
+	close(results)
+
+	fullCards := make([]Card, len(cards))
+	copy(fullCards, cards)
+	for r := range results {
+		fullCards[r.index] = r.card
+	}
+	return fullCards
+}
+
+func GetAllCards() ([]Card, error) {
 	var cards []Card
-	if err := json.Unmarshal(body, &cards); err != nil {
-		return nil, fmt.Errorf("erreur lors de la désérialisation: %w", err)
+	if err := fetchJSON(CardsURL, &cards); err != nil {
+		return nil, err
 	}
-
 	return cards, nil
 }
 
-// GetCardByID récupère une carte spécifique par son ID
 func GetCardByID(cardID string) (Card, error) {
-	// Construit l'URL
-	url := fmt.Sprintf(CardURL, cardID)
-
-	// Effectue la requête HTTP
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return Card{}, fmt.Errorf("erreur lors de la requête API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Vérifie le code de statut
-	if resp.StatusCode != http.StatusOK {
-		return Card{}, fmt.Errorf("API a retourné le statut: %d", resp.StatusCode)
-	}
-
-	// Lit le corps de la réponse
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Card{}, fmt.Errorf("erreur lors de la lecture de la réponse: %w", err)
-	}
-
-	// Désérialise le JSON
 	var card Card
-	if err := json.Unmarshal(body, &card); err != nil {
-		return Card{}, fmt.Errorf("erreur lors de la désérialisation: %w", err)
+	if err := fetchJSON(fmt.Sprintf(CardURL, cardID), &card); err != nil {
+		return Card{}, err
 	}
-
+	card.Image = appendImageSuffix(card.Image, "/high.webp")
+	card.SeriesID = card.Set.ID
+	card.SeriesName = card.Set.Name
 	return card, nil
 }
 
-// GetAllSeries récupère toutes les séries depuis l'API
 func GetAllSeries() ([]Series, error) {
-	// Effectue la requête HTTP
-	resp, err := httpClient.Get(SeriesURL)
-	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la requête API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Vérifie le code de statut
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API a retourné le statut: %d", resp.StatusCode)
-	}
-
-	// Lit le corps de la réponse
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("erreur lors de la lecture de la réponse: %w", err)
-	}
-
-	// Désérialise le JSON
 	var series []Series
-	if err := json.Unmarshal(body, &series); err != nil {
-		return nil, fmt.Errorf("erreur lors de la désérialisation: %w", err)
+	if err := fetchJSON(SetsURL, &series); err != nil {
+		return nil, err
 	}
-
+	for i := range series {
+		series[i].Logo = appendImageSuffix(series[i].Logo, ".webp")
+	}
 	return series, nil
 }
 
-// GetRecentCards récupère les cartes les plus récentes
 func GetRecentCards(limit int) ([]Card, error) {
-	// Récupérer toutes les cartes
 	allCards, err := GetAllCards()
 	if err != nil {
 		return nil, err
 	}
-
-	// Trier par date de sortie (si disponible)
-	// Dans ce cas, nous utilisons simplement les premières cartes
-	// car l'API TCGDEX renvoie souvent les plus récentes en premier
-
-	// Si le nombre de cartes est inférieur à la limite, retourne toutes les cartes
 	if len(allCards) <= limit {
-		return allCards, nil
+		return FetchCardDetails(allCards), nil
 	}
-
-	// Sinon, retourne les X premières cartes
-	return allCards[:limit], nil
+	return FetchCardDetails(allCards[:limit]), nil
 }
 
-// GetSeriesByID récupère une série spécifique par son ID
 func GetSeriesByID(seriesID string) (Series, error) {
-	// Construit l'URL
-	url := fmt.Sprintf(SeriesSetURL, seriesID)
-
-	// Effectue la requête HTTP
-	resp, err := httpClient.Get(url)
-	if err != nil {
-		return Series{}, fmt.Errorf("erreur lors de la requête API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Vérifie le code de statut
-	if resp.StatusCode != http.StatusOK {
-		return Series{}, fmt.Errorf("API a retourné le statut: %d", resp.StatusCode)
-	}
-
-	// Lit le corps de la réponse
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Series{}, fmt.Errorf("erreur lors de la lecture de la réponse: %w", err)
-	}
-
-	// Désérialise le JSON
 	var series Series
-	if err := json.Unmarshal(body, &series); err != nil {
-		return Series{}, fmt.Errorf("erreur lors de la désérialisation: %w", err)
+	if err := fetchJSON(fmt.Sprintf(SeriesSetURL, seriesID), &series); err != nil {
+		return Series{}, err
 	}
-
+	series.Logo = appendImageSuffix(series.Logo, ".webp")
 	return series, nil
 }
 
-// GetCardsBySeries récupère toutes les cartes d'une série spécifique
-func GetCardsBySeries(seriesID string) ([]Card, error) {
-	// Récupère toutes les cartes
-	allCards, err := GetAllCards()
-	if err != nil {
+func GetCardsBySeries(setID string) ([]Card, error) {
+	var setDetail struct {
+		Cards []Card `json:"cards"`
+	}
+	if err := fetchJSON(fmt.Sprintf(SeriesSetURL, setID), &setDetail); err != nil {
 		return nil, err
 	}
-
-	// Filtre les cartes par série
-	var seriesCards []Card
-	for _, card := range allCards {
-		if card.SeriesID == seriesID {
-			seriesCards = append(seriesCards, card)
-		}
+	for i := range setDetail.Cards {
+		setDetail.Cards[i].Image = appendImageSuffix(setDetail.Cards[i].Image, "/high.webp")
 	}
-
-	return seriesCards, nil
+	return setDetail.Cards, nil
 }
 
-// GetCardsByIDs récupère plusieurs cartes par leurs IDs
 func GetCardsByIDs(cardIDs []string) ([]Card, error) {
 	if len(cardIDs) == 0 {
 		return []Card{}, nil
 	}
 
-	// Récupère toutes les cartes
-	allCards, err := GetAllCards()
-	if err != nil {
-		return nil, err
+	minimalCards := make([]Card, len(cardIDs))
+	for i, id := range cardIDs {
+		minimalCards[i] = Card{ID: id}
 	}
-
-	// Crée une map pour accès rapide
-	cardMap := make(map[string]Card)
-	for _, card := range allCards {
-		cardMap[card.ID] = card
-	}
-
-	// Récupère les cartes demandées
-	var cards []Card
-	for _, id := range cardIDs {
-		if card, ok := cardMap[id]; ok {
-			cards = append(cards, card)
-		}
-	}
-
-	return cards, nil
+	return FetchCardDetails(minimalCards), nil
 }
 
-// SearchCards recherche des cartes selon les critères spécifiés
 func SearchCards(query SearchQuery) ([]Card, int, error) {
-	// Récupérer toutes les cartes
 	allCards, err := GetAllCards()
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Filtrer les cartes
 	var filtered []Card
 	for _, card := range allCards {
-		// Vérifier si la carte correspond aux critères
-		matchName := true
-		if query.Query != "" {
-			matchName = Contains(ToLowerCase(card.Name), ToLowerCase(query.Query))
+		if query.Query != "" && !strings.Contains(strings.ToLower(card.Name), strings.ToLower(query.Query)) {
+			continue
 		}
-
-		matchCategory := true
-		if query.Category != "" {
-			matchCategory = card.Category == query.Category
+		if query.Category != "" && card.Category != query.Category {
+			continue
 		}
-
-		matchType := true
 		if query.Type != "" {
-			matchType = false
+			found := false
 			for _, t := range card.Types {
 				if t == query.Type {
-					matchType = true
+					found = true
 					break
 				}
 			}
+			if !found {
+				continue
+			}
 		}
-
-		matchRarity := true
-		if query.Rarity != "" {
-			matchRarity = card.Rarity == query.Rarity
+		if query.Rarity != "" && card.Rarity != query.Rarity {
+			continue
 		}
-
-		// Si tous les critères correspondent, ajouter la carte
-		if matchName && matchCategory && matchType && matchRarity {
-			filtered = append(filtered, card)
-		}
+		filtered = append(filtered, card)
 	}
 
-	// Nombre total de résultats
 	totalCount := len(filtered)
-
-	// Pagination
 	start := (query.Page - 1) * query.PageSize
-	end := start + query.PageSize
-
-	// Vérifier les limites
 	if start >= totalCount {
 		return []Card{}, totalCount, nil
 	}
+	end := start + query.PageSize
 	if end > totalCount {
 		end = totalCount
 	}
 
-	return filtered[start:end], totalCount, nil
+	return FetchCardDetails(filtered[start:end]), totalCount, nil
 }
 
-// GetFilterOptions récupère les options de filtres disponibles
 func GetFilterOptions() ([]string, []string, []string, error) {
-	// Récupère toutes les cartes
 	cards, err := GetAllCards()
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	// Maps pour stocker les valeurs uniques
 	categories := make(map[string]bool)
 	types := make(map[string]bool)
 	rarities := make(map[string]bool)
 
-	// Parcourt toutes les cartes
 	for _, card := range cards {
-		// Catégories
 		if card.Category != "" {
 			categories[card.Category] = true
 		}
-
-		// Types
 		for _, t := range card.Types {
 			if t != "" {
 				types[t] = true
 			}
 		}
-
-		// Raretés
 		if card.Rarity != "" {
 			rarities[card.Rarity] = true
 		}
 	}
 
-	// Convertit les maps en slices
-	categoryList := make([]string, 0, len(categories))
-	for category := range categories {
-		categoryList = append(categoryList, category)
+	toSlice := func(m map[string]bool) []string {
+		s := make([]string, 0, len(m))
+		for k := range m {
+			s = append(s, k)
+		}
+		return s
 	}
 
-	typeList := make([]string, 0, len(types))
-	for t := range types {
-		typeList = append(typeList, t)
-	}
-
-	rarityList := make([]string, 0, len(rarities))
-	for rarity := range rarities {
-		rarityList = append(rarityList, rarity)
-	}
-
-	return categoryList, typeList, rarityList, nil
+	return toSlice(categories), toSlice(types), toSlice(rarities), nil
 }
 
-// GetSimilarCards récupère des cartes similaires à une carte donnée
 func GetSimilarCards(card Card, limit int) ([]Card, error) {
-	// Récupère toutes les cartes
 	allCards, err := GetAllCards()
 	if err != nil {
 		return nil, err
 	}
 
-	// Filtre les cartes par catégorie et type
-	var similarCards []Card
+	var similar []Card
 	for _, c := range allCards {
-		// Ne pas inclure la carte elle-même
-		if c.ID == card.ID {
-			continue
-		}
-
-		// Même catégorie
-		if c.Category == card.Category {
-			// Si c'est un Pokémon, vérifie aussi le type
-			if c.Category == "Pokémon" && len(card.Types) > 0 && len(c.Types) > 0 {
-				for _, t1 := range card.Types {
-					for _, t2 := range c.Types {
-						if t1 == t2 {
-							similarCards = append(similarCards, c)
-							break
-						}
-					}
-				}
-			} else {
-				similarCards = append(similarCards, c)
-			}
-		}
-
-		// Si on a atteint la limite, arrête
-		if len(similarCards) >= limit {
+		if c.ID == card.ID || len(similar) >= limit {
 			break
 		}
+		if c.Category != card.Category {
+			continue
+		}
+		if c.Category == "Pokémon" && len(card.Types) > 0 && len(c.Types) > 0 {
+			matched := false
+			for _, t1 := range card.Types {
+				for _, t2 := range c.Types {
+					if t1 == t2 {
+						matched = true
+						break
+					}
+				}
+				if matched {
+					break
+				}
+			}
+			if !matched {
+				continue
+			}
+		}
+		similar = append(similar, c)
 	}
 
-	return similarCards, nil
-}
-
-// Fonctions utilitaires
-// ToLowerCase convertit une chaîne en minuscules
-func ToLowerCase(s string) string {
-	return strings.ToLower(s)
-}
-
-// Contains vérifie si une chaîne contient une sous-chaîne
-func Contains(s, substr string) bool {
-	return strings.Contains(s, substr)
+	return FetchCardDetails(similar), nil
 }

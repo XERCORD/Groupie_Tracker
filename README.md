@@ -254,7 +254,7 @@ Sprint 6  →  Fix bugs images, optimisations, README
 ```
 
 **Ressources utilisées :**
-- [Documentation TCGDEX](https://api.tcgdex.net/docs/)
+- [Documentation TCGDEX](https://tcgdex.dev/?ref=api.tcgdex.net)
 - [Go standard library](https://pkg.go.dev/std)
 - [Go net/http](https://pkg.go.dev/net/http)
 - [Go html/template](https://pkg.go.dev/html/template)

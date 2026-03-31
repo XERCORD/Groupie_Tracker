@@ -1,4 +1,0 @@
-package routes
-
-func accueilroutes() {
-}
