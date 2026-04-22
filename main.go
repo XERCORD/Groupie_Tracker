@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"projet-groupie/controllers"
 	"projet-groupie/models"
 )
@@ -33,8 +34,11 @@ func main() {
 	fs := http.FileServer(http.Dir("./assets"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	port := "8000"
-	fmt.Printf("Serveur démarré sur http://localhost:%s\n", port)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	fmt.Printf("Serveur démarré sur le port %s\n", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal("Impossible de démarrer le serveur:", err)
 	}
