@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 	"sync"
@@ -12,12 +13,15 @@ import (
 )
 
 const (
-	BaseURL      = "https://api.tcgdex.net/v2/fr"
-	CardsURL     = BaseURL + "/cards"
-	SeriesURL    = BaseURL + "/series"
-	SetsURL      = BaseURL + "/sets"
-	CardURL      = BaseURL + "/cards/%s"
-	SeriesSetURL = BaseURL + "/sets/%s"
+	BaseURL       = "https://api.tcgdex.net/v2/fr"
+	CardsURL      = BaseURL + "/cards"
+	SeriesURL     = BaseURL + "/series"
+	SetsURL       = BaseURL + "/sets"
+	CategoriesURL = BaseURL + "/categories"
+	TypesURL      = BaseURL + "/types"
+	RaritiesURL   = BaseURL + "/rarities"
+	CardURL       = BaseURL + "/cards/%s"
+	SeriesSetURL  = BaseURL + "/sets/%s"
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
@@ -28,18 +32,93 @@ type cacheEntry struct {
 }
 
 var (
-	cacheMu         sync.Mutex
-	allCardsCache   *cacheEntry
+	cacheMu          sync.Mutex
+	allCardsCache    *cacheEntry
 	serieBlocksCache *cacheEntry
-	cardCache       = make(map[string]*cacheEntry)
-	cacheTTL        = 5 * time.Minute
+	filterOptionsCache *cacheEntry
+	cardCache        = make(map[string]*cacheEntry)
+	cacheTTL         = 5 * time.Minute
 )
 
+type tcgStringListResponse struct {
+	Value []string `json:"value"`
+}
+
+func fetchStringSlice(url string) ([]string, error) {
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("erreur requête: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("statut API: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lecture réponse: %w", err)
+	}
+
+	var direct []string
+	if err := json.Unmarshal(body, &direct); err == nil {
+		return direct, nil
+	}
+
+	var wrapped tcgStringListResponse
+	if err := json.Unmarshal(body, &wrapped); err != nil {
+		return nil, fmt.Errorf("erreur désérialisation liste: %w", err)
+	}
+	return wrapped.Value, nil
+}
+
+type filterOptionsData struct {
+	Categories []string
+	Types      []string
+	Rarities   []string
+}
+
+func sortStringsCI(s []string) {
+	sort.Slice(s, func(i, j int) bool {
+		return strings.ToLower(s[i]) < strings.ToLower(s[j])
+	})
+}
+
+type tcgSerieItem struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type tcgSeriesListResponse struct {
-	Value []struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"value"`
+	Value []tcgSerieItem `json:"value"`
+}
+
+func fetchSeriesList(url string) ([]tcgSerieItem, error) {
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("erreur requête: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("statut API: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("erreur lecture réponse: %w", err)
+	}
+
+	var direct []tcgSerieItem
+	if err := json.Unmarshal(body, &direct); err == nil {
+		return direct, nil
+	}
+
+	var wrapped tcgSeriesListResponse
+	if err := json.Unmarshal(body, &wrapped); err != nil {
+		return nil, fmt.Errorf("erreur désérialisation séries: %w", err)
+	}
+	return wrapped.Value, nil
 }
 
 type serieBlockData struct {
@@ -56,14 +135,14 @@ func getSerieBlockData() (*serieBlockData, error) {
 	}
 	cacheMu.Unlock()
 
-	var raw tcgSeriesListResponse
-	if err := fetchJSON(SeriesURL, &raw); err != nil {
+	items, err := fetchSeriesList(SeriesURL)
+	if err != nil {
 		return nil, err
 	}
 
 	byID := make(map[string]string)
-	ids := make([]string, 0, len(raw.Value))
-	for _, v := range raw.Value {
+	ids := make([]string, 0, len(items))
+	for _, v := range items {
 		if v.ID == "" {
 			continue
 		}
@@ -255,6 +334,35 @@ func GetAllSeries() ([]Series, error) {
 	return series, nil
 }
 
+func EnrichSeriesReleaseDates(items []Series) {
+	if len(items) == 0 {
+		return
+	}
+	type setBrief struct {
+		ReleaseDate string `json:"releaseDate"`
+	}
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 10)
+	for i := range items {
+		if items[i].ReleaseDate != "" {
+			continue
+		}
+		i := i
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			var b setBrief
+			if err := fetchJSON(fmt.Sprintf(SeriesSetURL, items[i].ID), &b); err != nil {
+				return
+			}
+			items[i].ReleaseDate = b.ReleaseDate
+		}()
+	}
+	wg.Wait()
+}
+
 func GetRecentCards(limit int) ([]Card, error) {
 	allCards, err := GetAllCards()
 	if err != nil {
@@ -330,35 +438,28 @@ func GetCardsByIDs(cardIDs []string) ([]Card, error) {
 }
 
 func SearchCards(query SearchQuery) ([]Card, int, error) {
-	allCards, err := GetAllCards()
-	if err != nil {
-		return nil, 0, err
+	params := url.Values{}
+	if strings.TrimSpace(query.Query) != "" {
+		params.Set("name", strings.TrimSpace(query.Query))
+	}
+	if strings.TrimSpace(query.Category) != "" {
+		params.Set("category", strings.TrimSpace(query.Category))
+	}
+	if strings.TrimSpace(query.Type) != "" {
+		params.Set("types", strings.TrimSpace(query.Type))
+	}
+	if strings.TrimSpace(query.Rarity) != "" {
+		params.Set("rarity", strings.TrimSpace(query.Rarity))
+	}
+
+	apiURL := CardsURL
+	if len(params) > 0 {
+		apiURL = CardsURL + "?" + params.Encode()
 	}
 
 	var filtered []Card
-	for _, card := range allCards {
-		if query.Query != "" && !strings.Contains(strings.ToLower(card.Name), strings.ToLower(query.Query)) {
-			continue
-		}
-		if query.Category != "" && card.Category != query.Category {
-			continue
-		}
-		if query.Type != "" {
-			found := false
-			for _, t := range card.Types {
-				if t == query.Type {
-					found = true
-					break
-				}
-			}
-			if !found {
-				continue
-			}
-		}
-		if query.Rarity != "" && card.Rarity != query.Rarity {
-			continue
-		}
-		filtered = append(filtered, card)
+	if err := fetchJSON(apiURL, &filtered); err != nil {
+		return nil, 0, err
 	}
 
 	totalCount := len(filtered)
@@ -375,38 +476,40 @@ func SearchCards(query SearchQuery) ([]Card, int, error) {
 }
 
 func GetFilterOptions() ([]string, []string, []string, error) {
-	cards, err := GetAllCards()
+	cacheMu.Lock()
+	if filterOptionsCache != nil && time.Now().Before(filterOptionsCache.expiresAt) {
+		d := filterOptionsCache.data.(*filterOptionsData)
+		cacheMu.Unlock()
+		return d.Categories, d.Types, d.Rarities, nil
+	}
+	cacheMu.Unlock()
+
+	cats, err := fetchStringSlice(CategoriesURL)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	typeList, err := fetchStringSlice(TypesURL)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	rars, err := fetchStringSlice(RaritiesURL)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
-	categories := make(map[string]bool)
-	types := make(map[string]bool)
-	rarities := make(map[string]bool)
+	cats = append([]string(nil), cats...)
+	types := append([]string(nil), typeList...)
+	rars = append([]string(nil), rars...)
+	sortStringsCI(cats)
+	sortStringsCI(types)
+	sortStringsCI(rars)
 
-	for _, card := range cards {
-		if card.Category != "" {
-			categories[card.Category] = true
-		}
-		for _, t := range card.Types {
-			if t != "" {
-				types[t] = true
-			}
-		}
-		if card.Rarity != "" {
-			rarities[card.Rarity] = true
-		}
-	}
+	d := &filterOptionsData{Categories: cats, Types: types, Rarities: rars}
+	cacheMu.Lock()
+	filterOptionsCache = &cacheEntry{data: d, expiresAt: time.Now().Add(cacheTTL)}
+	cacheMu.Unlock()
 
-	toSlice := func(m map[string]bool) []string {
-		s := make([]string, 0, len(m))
-		for k := range m {
-			s = append(s, k)
-		}
-		return s
-	}
-
-	return toSlice(categories), toSlice(types), toSlice(rarities), nil
+	return d.Categories, d.Types, d.Rarities, nil
 }
 
 func GetSimilarCards(card Card, limit int) ([]Card, error) {

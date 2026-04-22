@@ -33,9 +33,24 @@
         margin-bottom: 30px;
     }
 
-    .pikachu-sad {
+    .pikachu-sad-link {
+        display: block;
         max-width: 200px;
         margin: 0 auto 30px;
+        line-height: 0;
+        text-decoration: none;
+    }
+
+    .pikachu-sad-link:focus-visible {
+        outline: 2px solid #3c5aa6;
+        outline-offset: 4px;
+        border-radius: 8px;
+    }
+
+    .pikachu-sad {
+        max-width: 100%;
+        margin: 0;
+        display: block;
     }
 
     .error-actions {
@@ -64,8 +79,10 @@
     <header class="main-header">
         <div class="container">
             <div class="brand">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
-                <h1>TCGDEX Explorer</h1>
+                <a href="/accueil" class="brand-link" aria-label="Retour à l'accueil">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                    <h1>TCGDEX Explorer</h1>
+                </a>
             </div>
             <nav>
                 <ul class="nav-menu">
@@ -73,6 +90,7 @@
                     <li><a href="/collection">Collection</a></li>
                     <li><a href="/recherche">Recherche</a></li>
                     <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/contact">Contact</a></li>
                     <li><a href="/a-propos">À propos</a></li>
                 </ul>
             </nav>
@@ -83,7 +101,9 @@
         <div class="error-container">
             <div class="error-code">{{ .StatusCode }}</div>
             
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu triste" class="pikachu-sad">
+            <a href="/accueil" class="pikachu-sad-link" aria-label="Retour à l'accueil">
+                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu triste" class="pikachu-sad">
+            </a>
             
             <h1 class="error-title">{{ .ErrorTitle }}</h1>
             

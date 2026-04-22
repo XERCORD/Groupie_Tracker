@@ -49,6 +49,7 @@ func setupRoutes() {
 	http.HandleFunc("/series/", controllers.SeriesController)
 	http.HandleFunc("/favoris", controllers.FavoritesController)
 	http.HandleFunc("/a-propos", controllers.AboutController)
+	http.HandleFunc("/contact", controllers.ContactController)
 	http.HandleFunc("/api/favoris/toggle", controllers.ToggleFavoriteController)
 	http.HandleFunc("/api/favoris/clear", controllers.ClearFavoritesController)
 	http.HandleFunc("/error", controllers.InternalServerErrorHandler)

@@ -64,14 +64,33 @@
         font-weight: 600;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
+
+    .series-logo-link {
+        display: inline-block;
+        line-height: 0;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .series-logo-link:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 4px;
+        border-radius: 8px;
+    }
+
+    .series-logo-link:hover img {
+        opacity: 0.95;
+    }
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="container">
             <div class="brand">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
-                <h1>TCGDEX Explorer</h1>
+                <a href="/accueil" class="brand-link" aria-label="Retour à l'accueil">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                    <h1>TCGDEX Explorer</h1>
+                </a>
             </div>
             <nav>
                 <ul class="nav-menu">
@@ -79,6 +98,7 @@
                     <li><a href="/collection" class="active">Collection</a></li>
                     <li><a href="/recherche">Recherche</a></li>
                     <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/contact">Contact</a></li>
                     <li><a href="/a-propos">À propos</a></li>
                 </ul>
             </nav>
@@ -89,7 +109,9 @@
         <div class="series-header">
             {{ if .Series.Logo }}
             <div class="series-logo">
-                <img src="{{ .Series.Logo }}" alt="{{ .Series.Name }}">
+                <a href="/series/{{ .Series.ID }}" class="series-logo-link" aria-label="Extension {{ .Series.Name }}">
+                    <img src="{{ .Series.Logo }}" alt="{{ .Series.Name }}">
+                </a>
             </div>
             {{ end }}
             
@@ -129,7 +151,9 @@
                 {{ range .Cards }}
                 <div class="card">
                     <div class="card-image">
-                        <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        <a href="/carte/{{ .ID }}" class="card-image-link" aria-label="Voir le détail de {{ .Name }}">
+                            <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        </a>
                         <button type="button" class="favorite-btn {{ if .IsFavorite }}active{{ end }}"
                                 data-card-id="{{ .ID }}"
                                 data-fav-kind="icon"

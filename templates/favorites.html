@@ -12,8 +12,10 @@
     <header class="main-header">
         <div class="container">
             <div class="brand">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
-                <h1>TCGDEX Explorer</h1>
+                <a href="/accueil" class="brand-link" aria-label="Retour à l'accueil">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                    <h1>TCGDEX Explorer</h1>
+                </a>
             </div>
             <nav>
                 <ul class="nav-menu">
@@ -21,6 +23,7 @@
                     <li><a href="/collection">Collection</a></li>
                     <li><a href="/recherche">Recherche</a></li>
                     <li><a href="/favoris" class="active">Favoris</a></li>
+                    <li><a href="/contact">Contact</a></li>
                     <li><a href="/a-propos">À propos</a></li>
                 </ul>
             </nav>
@@ -49,11 +52,13 @@
                 {{ range .FavoriteSets }}
                 <div class="favorite-set-card">
                     <div class="favorite-set-logo">
-                        {{ if .Logo }}
-                        <img src="{{ .Logo }}" alt="{{ .Name }}" loading="lazy">
-                        {{ else }}
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pokémon_logo.svg/640px-International_Pokémon_logo.svg.png" alt="{{ .Name }}" loading="lazy">
-                        {{ end }}
+                        <a href="/series/{{ .ID }}" class="favorite-set-logo-link" aria-label="Voir l'extension {{ .Name }}">
+                            {{ if .Logo }}
+                            <img src="{{ .Logo }}" alt="{{ .Name }}" loading="lazy">
+                            {{ else }}
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pokémon_logo.svg/640px-International_Pokémon_logo.svg.png" alt="{{ .Name }}" loading="lazy">
+                            {{ end }}
+                        </a>
                     </div>
                     <h3>{{ .Name }}</h3>
                     {{ if .SerieName }}<p class="series-block-tag">{{ .SerieName }}</p>{{ end }}
@@ -75,7 +80,9 @@
                 {{ range .Cards }}
                 <div class="card">
                     <div class="card-image">
-                        <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        <a href="/carte/{{ .ID }}" class="card-image-link" aria-label="Voir le détail de {{ .Name }}">
+                            <img src="{{ .Image }}" alt="{{ .Name }}" loading="lazy">
+                        </a>
                         <button type="button" class="favorite-btn active"
                                 data-card-id="{{ .ID }}"
                                 data-fav-kind="icon"

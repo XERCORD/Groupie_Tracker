@@ -58,6 +58,8 @@ func CollectionController(w http.ResponseWriter, r *http.Request) {
 		paginatedSeries = []models.Series{}
 	}
 
+	models.EnrichSeriesReleaseDates(paginatedSeries)
+
 	data := struct {
 		CurrentPage   string
 		Series        []models.Series

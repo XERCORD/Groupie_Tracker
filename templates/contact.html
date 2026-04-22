@@ -1,0 +1,88 @@
+{{define "contact"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - TCGDEX Explorer</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/contact.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="brand">
+                <a href="/accueil" class="brand-link" aria-label="Retour à l'accueil">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pokémon_logo.svg" alt="Logo Pokémon" class="logo">
+                    <h1>TCGDEX Explorer</h1>
+                </a>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/accueil">Accueil</a></li>
+                    <li><a href="/collection">Collection</a></li>
+                    <li><a href="/recherche">Recherche</a></li>
+                    <li><a href="/favoris">Favoris</a></li>
+                    <li><a href="/contact" class="active">Contact</a></li>
+                    <li><a href="/a-propos">À propos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container contact-page">
+        <header class="contact-hero">
+            <h1>Contact</h1>
+            <p>Une question sur le projet ou une suggestion ? Envoyez un message via le formulaire ci-dessous.</p>
+        </header>
+
+        {{ if .Success }}
+        <div class="contact-alert contact-alert--success" role="status">
+            <strong>Message envoyé.</strong> Merci, nous avons bien enregistré votre demande.
+        </div>
+        {{ end }}
+
+        {{ if .Error }}
+        <div class="contact-alert contact-alert--error" role="alert">
+            {{ .Error }}
+        </div>
+        {{ end }}
+
+        <section class="contact-panel">
+            <form class="contact-form" method="POST" action="/contact" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contact-name">Nom <span class="req">*</span></label>
+                        <input type="text" id="contact-name" name="name" autocomplete="name" maxlength="120" value="{{ .Name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">E-mail <span class="req">*</span></label>
+                        <input type="email" id="contact-email" name="email" autocomplete="email" value="{{ .Email }}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contact-subject">Sujet <span class="req">*</span></label>
+                    <input type="text" id="contact-subject" name="subject" maxlength="200" value="{{ .Subject }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-message">Message <span class="req">*</span></label>
+                    <textarea id="contact-message" name="message" rows="8" maxlength="8000" required>{{ .Message }}</textarea>
+                    <p class="form-hint">Maximum 8000 caractères.</p>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                    <a href="/accueil" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2025 TCGDEX Explorer - Projet Groupie Tracker</p>
+            <p>Développé par Ji Xerly pour Ynov</p>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

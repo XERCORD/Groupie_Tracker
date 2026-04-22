@@ -33,6 +33,23 @@
     z-index: 2;
   }
   
+  .card-detail-main-link {
+    display: inline-block;
+    max-width: 100%;
+    line-height: 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-detail-main-link:focus-visible {
+    box-shadow: 0 0 0 3px rgba(60, 90, 166, 0.45);
+    border-radius: 8px;
+  }
+
+  .card-detail-main-link:hover img {
+    opacity: 0.97;
+  }
+
   .card-image-container img {
     max-width: 100%;
     max-height: 500px;
